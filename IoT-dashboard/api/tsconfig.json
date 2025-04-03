@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "es5",
+    "outDir": "./dist",
+    "baseUrl": "api/lib",
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "api/lib/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
