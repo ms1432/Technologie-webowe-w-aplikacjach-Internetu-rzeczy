@@ -74,15 +74,12 @@ function Chart() {
     return (
         <div style={{ padding: "20px", textAlign: "center", width: "100%", display: "flex"}}>
             <div>
-                <h3>Dane z wykresu</h3>
                 <Line data={generateChartDataTemp()} />
             </div>
             <div>
-                <h3>Wykres ciśnienia</h3>
                 <Line data={generateChartDataPressure()} />
             </div>
             <div>
-                <h3>Wykres ciśnienia</h3>
                 <Line data={generateChartDataHumidity()} />
             </div>
         </div>
