@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import Chart from './assets/Chart.tsx'
+import Chart from './Chart.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
