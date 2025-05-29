@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { config } from '../../config';
 
 class EmailService {
 
@@ -9,8 +10,8 @@ class EmailService {
             host: 'smtp.ethereal.email',
             port: 587,
             auth: {
-                user: 'allison.nolan@ethereal.email',
-                pass: 'bZ6fjvtVX9xJdxcAeZ'
+                user: config.etherealEmail,
+                pass: config.etherealPassword
             }
         });
     }
@@ -30,8 +31,6 @@ class EmailService {
                 return process.exit(1);
             }
 
-            console.log('Message sent: %s', info.messageId);
-            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
             console.log('Message sent: %s', info.messageId);
             console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
         });
