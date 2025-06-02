@@ -5,12 +5,14 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import DataService from 'modules/services/data.service';
+import cors from 'cors';
 
 class App {
     public app: express.Application;
     public dataServive: DataService
     constructor(controllers: Controller[]) {
         this.app = express();
+        this.app.use(cors());
 
         this.initializeMiddlewares();
         this.initializeControllers(controllers);

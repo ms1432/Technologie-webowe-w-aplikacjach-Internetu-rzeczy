@@ -11,12 +11,8 @@ import EmailService from '../modules/services/email.service';
 class UserController implements Controller {
     public path = '/api/user';
     public router = Router();
-    private userService = new UserService();
-    private passwordService = new PasswordService();
-    private tokenService = new TokenService();
-    private emailService = new EmailService();
 
-    constructor() {
+    constructor(private userService: UserService, private passwordService: PasswordService, private tokenService: TokenService, private emailService: EmailService) {
         this.initializeRoutes();
     }
 

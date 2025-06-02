@@ -9,9 +9,8 @@ import Joi from 'joi';
 class DataController implements Controller {
     public path = '/api/data';
     public router = Router();
-    private dataService = new DataService();
 
-    constructor() {
+    constructor(private dataService: DataService) {
         this.initializeRoutes();
     }
 
@@ -27,7 +26,8 @@ class DataController implements Controller {
 
     private getLatestReadingsFromAllDevices = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            response.status(200).json(await this.dataService.getAllNewest());
+            const data = await this.dataService.getAllNewest();
+            response.status(200).json(data);
         } catch (error) {
             response.status(500).json({ error: error.message });
         }

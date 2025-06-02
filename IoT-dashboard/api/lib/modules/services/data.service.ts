@@ -1,6 +1,6 @@
 import DataModel from '../schemas/data.schema';
 import { IData, Query } from "../models/data.model";
-
+import { config } from '../../config';
 
 export default class DataService {
 
@@ -22,23 +22,28 @@ export default class DataService {
             throw new Error(`Query failed: ${error}`);
         }
     }
+    public async getAllNewest(): Promise<object[]> {
+        const latestData: object[] = [];
 
-    public async getAllNewest() {
-        const latestData: any[] = [];
-        Array.from({ length: 17 }, async (_, i) => {
-            try {
-                const latestEntry = await DataModel.find({ deviceId: i }, { __v: 0, _id: 0 }).limit(1).sort({ $natural: -1 });
-                if (latestEntry.length) {
-                    latestData.push(latestEntry[0]);
-                } else {
-                    latestData.push({ deviceId: i });
+        await Promise.all(
+            Array.from({ length: config.supportedDevicesNum }, async (_, i) => {
+                try {
+                    const [latestEntry] = await DataModel.find(
+                        { deviceId: i },
+                        { __v: 0, _id: 0 }
+                    )
+                        .limit(1)
+                        .sort({ $natural: -1 });
+
+                    latestData.push(latestEntry || { deviceId: i });
+                } catch (error: any) {
+                    console.error(`Błąd podczas pobierania danych dla urządzenia ${i}: ${error.message}`);
+                    latestData.push({ deviceId: i, error: "Błąd pobierania danych" });
                 }
-                return latestData;
-            } catch (error) {
-                console.error(`Błąd podczas pobierania danych dla urządzenia ${i + 1}: ${error.message}`);
-                latestData.push({});
-            }
-        });
+            })
+        );
+
+        return latestData;
     }
 
     public async get(deviceID: string) {
