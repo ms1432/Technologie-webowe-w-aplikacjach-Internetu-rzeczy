@@ -2,15 +2,15 @@ import * as React from 'react';
 import { LineChart } from '@mui/x-charts';
 
 const margin = { right: 24 };
-const tData = [23.5, 25.0];
-const pData = [101.325, 104.5];
-const hData = [45, 65];
-const xLabels = [
-  '21:15 2.06.2025',
-  '21:20 2.06.2025',
-];
 
-function Chart() {
+type ChartProps = {
+  Temperature?: number[];
+  Humidity?: number[];
+  Pressure?: number[];
+  Data?: string[] 
+};
+
+function Chart({Temperature, Humidity, Pressure, Data}: ChartProps) {
   return (
     <LineChart
       sx={{
@@ -24,13 +24,13 @@ function Chart() {
       }}
       height={300}
       series={[
-        { data: tData, label: 'Temperature [C]' },
-        { data: pData, label: 'Humidity [%]' },
-        { data: hData, label: 'Pressure x 10 [hPa]' },
+        { data: Temperature, label: 'Temperature [C]' },
+        { data: Humidity, label: 'Humidity [%]' },
+        { data: Pressure, label: 'Pressure x 10 [hPa]' },
       ]}
       xAxis={[{
         scaleType: 'point',
-        data: xLabels,
+        data: Data,
         tickLabelStyle: { fill: 'white' },
         
       }]}

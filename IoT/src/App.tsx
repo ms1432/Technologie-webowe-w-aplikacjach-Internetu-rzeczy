@@ -19,6 +19,14 @@ const data = [
   { deviceID: '5', temperature: undefined, humidity: undefined, pressure: undefined },
 ]
 
+const tData = [23.5, 25.0];
+const pData = [101.325, 104.5];
+const hData = [45, 65];
+const xLabels = [
+  '21:15 2.06.2025',
+  '21:20 2.06.2025',
+];
+
 function App() {
 
   return (
@@ -59,7 +67,12 @@ function App() {
               width: '60%',
               padding: '5vh',
             }}>
-              <Chart />
+              <Chart
+               Temperature={tData}
+               Humidity={hData}
+               Pressure={pData}
+               Data={xLabels}
+              />
             </div>
           </div>
         </div>
