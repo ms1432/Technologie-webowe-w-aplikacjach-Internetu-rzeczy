@@ -21,9 +21,9 @@ type InfoCardProps = {
 function DataCard({ deviceID, temperature, humidity, pressure }: InfoCardProps) {
 
     const noData =
-        (temperature === undefined || temperature === 'undefined') &&
-        (humidity === undefined || humidity === 'undefined') &&
-        (pressure === undefined || pressure === 'undefined');
+        (temperature === undefined || temperature === 'undefined' || null) &&
+        (humidity === undefined || humidity === 'undefined' || null) &&
+        (pressure === undefined || pressure === 'undefined' || null);
 
     return (
         <Card sx={{ backgroundColor: '#1e1e1e', color: 'white', padding: 2, width: '260px', height: '220px', minHeight: 175, ":hover": { backgroundColor: '#0eb4b2' } }}>

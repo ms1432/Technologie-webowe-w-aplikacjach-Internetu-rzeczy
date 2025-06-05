@@ -9,25 +9,51 @@ import Navbar from './components/Navbar'
 import DataCard from './components/DataCard'
 import Chart from './components/Chart'
 
-const devicesCount = 5;
-
-const data = [
-  { deviceID: '1', temperature: '23', humidity: '65', pressure: '1023' },
-  { deviceID: '3', temperature: undefined, humidity: undefined, pressure: undefined },
-  { deviceID: '2', temperature: '22', humidity: '60', pressure: '1015' },
-  { deviceID: '4', temperature: '21', humidity: '55', pressure: '1018' },
-  { deviceID: '5', temperature: undefined, humidity: undefined, pressure: undefined },
-]
-
-const tData = [23.5, 25.0];
-const pData = [101.325, 104.5];
-const hData = [45, 65];
-const xLabels = [
-  '21:15 2.06.2025',
-  '21:20 2.06.2025',
-];
-
 function App() {
+  const [deviceCount, setDeviceCount] = useState(5)
+  const [deviceData, setDeviceData] = useState(null);
+  const [currentDeviceData, setCurrentDeviceData] = useState({
+    deviceId: '1',
+    temperature: '23',
+    humidity: '62',
+    pressure: '1060'
+  });
+  const [currentDeviceId, setCurrentDeviceId] = useState(1);
+  const [tData, setTData] = useState([25, 23]);
+  const [hData, setHData] = useState([65, 62]);
+  const [pData, setPData] = useState([1023, 1060]);
+  const [xLabels, setXLabels] = useState([1, 2]);
+
+  useEffect(() => {
+    const fetchData = () => {
+      fetch('http://localhost:3100/api/data/latest')
+        .then(response => response.json())
+        .then(data => {
+
+          const sorted = Array.isArray(data)
+            ? [...data].sort((a, b) => Number(a.deviceId) - Number(b.deviceId))
+            : [];
+          setDeviceData(sorted);
+        });
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  function changeCurrentDevice(idx) {
+    setCurrentDeviceId(parseInt(idx));
+    fetch(`http://localhost:3100/api/data/${idx}/5`)
+      .then(response => response.json())
+      .then(data => {
+        setCurrentDeviceData(data);
+        setTData(data ? data.map(d => d.temperature) : []);
+        setHData(data ? data.map(d => d.humidity) : []);
+        setPData(data ? data.map(d => d.pressure) : []);
+        setXLabels(data ? data.map((_, idx) => `Pomiar ${idx + 1}`) : []);
+      });
+  }
 
   return (
     <>
@@ -55,11 +81,14 @@ function App() {
               alignItems: 'center',
               width: '40%',
             }}>
-              <DataCard
-                deviceID={'1'}
-                temperature={'23'}
-                humidity={'65'}
-                pressure={'1023'} />
+              {currentDeviceData && (
+                <DataCard
+                  deviceID={currentDeviceId}
+                  temperature={currentDeviceData.temperature}
+                  humidity={currentDeviceData.humidity}
+                  pressure={currentDeviceData.pressure}
+                />
+              )}
             </div>
             <div style={{
               display: 'flex',
@@ -68,10 +97,10 @@ function App() {
               padding: '5vh',
             }}>
               <Chart
-               Temperature={tData}
-               Humidity={hData}
-               Pressure={pData}
-               Data={xLabels}
+                Temperature={tData}
+                Humidity={hData}
+                Pressure={pData}
+                Data={xLabels}
               />
             </div>
           </div>
@@ -87,15 +116,21 @@ function App() {
           gap: '5vh',
 
         }}>
-          {Array.from({ length: devicesCount }).map((_, idx) => (
-            <DataCard
-              key={idx}
-              deviceID={`${data[idx].deviceID}`}
-              temperature={`${data[idx].temperature}`}
-              humidity={`${data[idx].humidity}`}
-              pressure={`${data[idx].pressure}`}
-            />
-          ))}
+          {Array.isArray(deviceData) && deviceData.length > 0 && (
+            Array.from({ length: deviceCount }).map((_, idx) => (
+              <div
+                key={idx}
+                onClick={() => changeCurrentDevice(idx)}>
+                <DataCard
+                  key={idx}
+                  deviceID={deviceData[idx]?.deviceId}
+                  temperature={deviceData[idx]?.temperature}
+                  humidity={deviceData[idx]?.humidity}
+                  pressure={deviceData[idx]?.pressure}
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </>
