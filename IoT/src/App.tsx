@@ -1,139 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { Nav } from 'reactstrap'
-import { useEffect } from 'react'
 
-import Navbar from './components/Navbar'
-import DataCard from './components/DataCard'
-import Chart from './components/Chart'
+import SignUpForm from './components/SignUpForm'
+import Layout from './components/Layout';
+import Dashboard from './components/Dashboard';
+import Login from './components/Login';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 function App() {
-  const [deviceCount, setDeviceCount] = useState(5)
-  const [deviceData, setDeviceData] = useState(null);
-  const [currentDeviceData, setCurrentDeviceData] = useState({
-    deviceId: '1',
-    temperature: '23',
-    humidity: '62',
-    pressure: '1060'
-  });
-  const [currentDeviceId, setCurrentDeviceId] = useState(1);
-  const [tData, setTData] = useState([25, 23]);
-  const [hData, setHData] = useState([65, 62]);
-  const [pData, setPData] = useState([1023, 1060]);
-  const [xLabels, setXLabels] = useState([1, 2]);
-
-  useEffect(() => {
-    const fetchData = () => {
-      fetch('http://localhost:3100/api/data/latest')
-        .then(response => response.json())
-        .then(data => {
-
-          const sorted = Array.isArray(data)
-            ? [...data].sort((a, b) => Number(a.deviceId) - Number(b.deviceId))
-            : [];
-          setDeviceData(sorted);
-        });
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  function changeCurrentDevice(idx) {
-    setCurrentDeviceId(parseInt(idx));
-    fetch(`http://localhost:3100/api/data/${idx}/5`)
-      .then(response => response.json())
-      .then(data => {
-        setCurrentDeviceData(data);
-        setTData(data ? data.map(d => d.temperature) : []);
-        setHData(data ? data.map(d => d.humidity) : []);
-        setPData(data ? data.map(d => d.pressure) : []);
-        setXLabels(data ? data.map((_, idx) => `Pomiar ${idx + 1}`) : []);
-      });
-  }
 
   return (
-    <>
-      <div style={{ minHeight: '100vh' }}>
-        <Navbar />
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '40vh',
-          backgroundColor: '#121313',
-          WebkitJustifyContent: 'space-between'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            flexDirection: 'row',
-            alignContent: 'center',
-            width: '100%',
-            gap: '2vh',
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '40%',
-            }}>
-              {currentDeviceData && (
-                <DataCard
-                  deviceID={currentDeviceId}
-                  temperature={currentDeviceData.temperature}
-                  humidity={currentDeviceData.humidity}
-                  pressure={currentDeviceData.pressure}
-                />
-              )}
-            </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              width: '60%',
-              padding: '5vh',
-            }}>
-              <Chart
-                Temperature={tData}
-                Humidity={hData}
-                Pressure={pData}
-                Data={xLabels}
-              />
-            </div>
-          </div>
-        </div>
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '50vh',
-          WebkitJustifyContent: 'space-between',
-          padding: '5vh',
-          gap: '5vh',
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout/>}>
+          <Route index element={ <SignUpForm />} />
+          <Route path="dashboard" element={<Dashboard />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
 
-        }}>
-          {Array.isArray(deviceData) && deviceData.length > 0 && (
-            Array.from({ length: deviceCount }).map((_, idx) => (
-              <div
-                key={idx}
-                onClick={() => changeCurrentDevice(idx)}>
-                <DataCard
-                  key={idx}
-                  deviceID={deviceData[idx]?.deviceId}
-                  temperature={deviceData[idx]?.temperature}
-                  humidity={deviceData[idx]?.humidity}
-                  pressure={deviceData[idx]?.pressure}
-                />
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </>
   )
 }
 

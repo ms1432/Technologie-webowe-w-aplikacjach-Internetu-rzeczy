@@ -5,6 +5,7 @@ import DataService from '../modules/services/data.service';
 import { IData } from 'modules/models/data.model';
 import { config } from '../config'
 import Joi from 'joi';
+import { auth } from "../middlewares/auth.middleware"
 
 class DataController implements Controller {
     public path = '/api/data';
@@ -15,13 +16,13 @@ class DataController implements Controller {
     }
 
     private initializeRoutes() {
-        this.router.get(`${this.path}/latest`, this.getLatestReadingsFromAllDevices);
-        this.router.post(`${this.path}/:id`, checkIdParam, this.addData);
-        this.router.get(`${this.path}/:id/:num`, checkIdParam, this.getPeriodData);
-        this.router.get(`${this.path}/:id`, checkIdParam, this.getAllDeviceData);
-        this.router.get(`${this.path}/:id/latest`, checkIdParam, this.getPeriodData);
-        this.router.delete(`${this.path}/all`, this.cleanAllDevices);
-        this.router.delete(`${this.path}/:id`, checkIdParam, this.cleanDeviceData);
+        this.router.get(`${this.path}/latest`,auth,  this.getLatestReadingsFromAllDevices);
+        this.router.post(`${this.path}/:id`, auth, checkIdParam, this.addData);
+        this.router.get(`${this.path}/:id/:num`, auth, checkIdParam, this.getPeriodData);
+        this.router.get(`${this.path}/:id`, auth, checkIdParam, this.getAllDeviceData);
+        this.router.get(`${this.path}/:id/latest`, auth, checkIdParam, this.getPeriodData);
+        this.router.delete(`${this.path}/all`, auth, this.cleanAllDevices);
+        this.router.delete(`${this.path}/:id`, auth, checkIdParam, this.cleanDeviceData);
     }
 
     private getLatestReadingsFromAllDevices = async (request: Request, response: Response, next: NextFunction) => {
