@@ -1,12 +1,5 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import LanguageIcon from '@mui/icons-material/Language';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-
 import Thermostat from '@mui/icons-material/Thermostat';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import OpacityIcon from '@mui/icons-material/Opacity';
@@ -21,9 +14,9 @@ type InfoCardProps = {
 function DataCard({ deviceID, temperature, humidity, pressure }: InfoCardProps) {
 
     const noData =
-        (temperature === undefined || temperature === 'undefined' || null) &&
-        (humidity === undefined || humidity === 'undefined' || null) &&
-        (pressure === undefined || pressure === 'undefined' || null);
+        (temperature === undefined || temperature === 'undefined') &&
+        (humidity === undefined || humidity === 'undefined') &&
+        (pressure === undefined || pressure === 'undefined');
 
     return (
         <Card sx={{ backgroundColor: '#1e1e1e', color: 'white', padding: 2, width: '260px', height: '220px', minHeight: 175, ":hover": { backgroundColor: '#0eb4b2' } }}>

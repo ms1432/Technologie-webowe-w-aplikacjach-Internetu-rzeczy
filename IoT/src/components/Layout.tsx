@@ -7,7 +7,7 @@ function Layout() {
 
     return (
         <>
-            <div style={{ minHeight: '100vh', display: "flex", flexDirection: "column"}}>
+            <div style={{ height: '100%', display: "flex", flexDirection: "column"}}>
                 <Navbar />
                 <div style={{flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                     <Outlet />

@@ -5,28 +5,43 @@ import { isExpired } from "react-jwt";
 import DataCard from './DataCard'
 import Chart from './Chart'
 
+type DeviceData = {
+    deviceId: number;
+    temperature: number;
+    humidity: number;
+    pressure: number;
+};
+
 function Dashboard() {
 
     const [deviceCount, setDeviceCount] = useState(5)
-    const [deviceData, setDeviceData] = useState(null);
-    const [currentDeviceData, setCurrentDeviceData] = useState({
-        deviceId: '1',
-        temperature: '23',
-        humidity: '62',
-        pressure: '1060'
+    const [deviceData, setDeviceData] = useState<DeviceData[] | undefined>(undefined);
+    const [currentDeviceData, setCurrentDeviceData] = useState<Partial<DeviceData>>({
+        deviceId: undefined,
+        temperature: undefined,
+        humidity: undefined,
+        pressure: undefined
     });
     const [currentDeviceId, setCurrentDeviceId] = useState(1);
-    const [tData, setTData] = useState([25, 23]);
-    const [hData, setHData] = useState([65, 62]);
-    const [pData, setPData] = useState([1023, 1060]);
-    const [xLabels, setXLabels] = useState([1, 2]);
+    const [tData, setTData] = useState([]);
+    const [hData, setHData] = useState([]);
+    const [pData, setPData] = useState([]);
+    const [xLabels, setXLabels] = useState([]);
 
     useEffect(() => {
         const fetchData = () => {
-            fetch('http://localhost:3100/api/data/latest')
+            console.log(`Bearer ${localStorage.getItem('token')}`)
+            fetch('http://localhost:3100/api/data/latest',
+                {
+                    method: "GET",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
+                    }
+                })
                 .then(response => response.json())
                 .then(data => {
-
                     const sorted = Array.isArray(data)
                         ? [...data].sort((a, b) => Number(a.deviceId) - Number(b.deviceId))
                         : [];
@@ -34,36 +49,37 @@ function Dashboard() {
                 });
         };
 
-        const fetchToken = () => {
-            fetch("http://localhost:3100/api/posts",
-                {
-                    method: "GET",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': ' application/json',
-                        'x-auth-token': localStorage.getItem('token')
-                    }
-                })
-        }
-
         fetchData();
-        fetchToken();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
     }, []);
 
 
 
-    function changeCurrentDevice(idx) {
-        setCurrentDeviceId(parseInt(idx));
-        fetch(`http://localhost:3100/api/data/${idx}/5`)
+    function changeCurrentDevice(idx: number) {
+        setCurrentDeviceId(idx);
+        fetch(`http://localhost:3100/api/data/${idx}/1`,
+            {
+                method: "GET",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
+                }
+            }
+        )
             .then(response => response.json())
             .then(data => {
-                setCurrentDeviceData(data);
-                setTData(data ? data.map(d => d.temperature) : []);
-                setHData(data ? data.map(d => d.humidity) : []);
-                setPData(data ? data.map(d => d.pressure) : []);
-                setXLabels(data ? data.map((_, idx) => `Pomiar ${idx + 1}`) : []);
+                setCurrentDeviceData(data && data.length > 0 ? data[data.length - 1] : {
+                    deviceId: undefined,
+                    temperature: undefined,
+                    humidity: undefined,
+                    pressure: undefined
+                });
+                setTData(data ? data.map((d: { temperature: any; }) => d.temperature) : []);
+                setHData(data ? data.map((d: { humidity: any; }) => d.humidity) : []);
+                setPData(data ? data.map((d: { pressure: any; }) => d.pressure) : []);
+                setXLabels(data ? data.map((_: any, idx: number) => `Pomiar ${idx + 1}`) : []);
             });
     }
 
@@ -73,8 +89,8 @@ function Dashboard() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: '40vh',
-                width: '100vw',
+                height: '40%',
+                width: '100%',
                 backgroundColor: '#121313',
                 WebkitJustifyContent: 'space-between'
             }}>
@@ -121,7 +137,7 @@ function Dashboard() {
                 flexWrap: 'wrap',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: '50vh',
+                height: '60%',
                 WebkitJustifyContent: 'space-between',
                 padding: '5vh',
                 gap: '5vh',
@@ -145,6 +161,6 @@ function Dashboard() {
             </div>
         </>
     )
-}
+} 
 
 export default Dashboard;

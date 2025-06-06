@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { TextField, Button, Container, Typography, Alert, Box } from '@mui/material';
@@ -26,7 +26,7 @@ const SignUpForm: React.FC = () => {
     const navigate = useNavigate();
 
     const handleChangeRoute = () => {
-        navigate('/dashboard');
+        navigate('/login');
     };
 
     const validate = (): Errors | null => {
@@ -78,11 +78,7 @@ const SignUpForm: React.FC = () => {
     };
 
     return (
-        <Container maxWidth="sm" sx={{
-            backgroundColor: "white", 
-            color: "black", 
-            height: "60vh", borderRadius: "15px",
-            padding: "25px"}}>
+        <Container maxWidth="sm">
             <Typography variant="h4" component="h1" gutterBottom>
                 Sign Up
             </Typography>
