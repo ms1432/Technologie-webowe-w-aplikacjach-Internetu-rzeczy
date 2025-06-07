@@ -22,11 +22,11 @@ class UserController implements Controller {
         this.router.delete(`${this.path}/logout/:userId`, auth, this.removeHashSession);
         this.router.post(`${this.path}/resetPasswd`, this.resetPasswd);
         this.router.post(`${this.path}/deleteUser/:userId`, admin, this.deleteUser);
+        this.router.post(`${this.path}/getUserData`, auth, this.getUserData);
     }
 
     private authenticate = async (request: Request, response: Response, next: NextFunction) => {
         const { login, password } = request.body;
-
 
         try {
             const user = await this.userService.getByEmailOrName(login);
@@ -40,7 +40,7 @@ class UserController implements Controller {
             }
 
             const token = await this.tokenService.create(user);
-            response.status(200).json(this.tokenService.getToken(token));
+            response.status(200).json({token: this.tokenService.getToken(token).token, email: user.email});
         } catch (error) {
             console.error(`Validation Error: ${error.message}`);
             response.status(401).json({ error: 'Unauthorized' });
@@ -113,6 +113,15 @@ class UserController implements Controller {
             response.status(400).json({ error: 'Bad request', value: error.message });
         }
     };
+    private getUserData = async(request: Request, response: Response, next: NextFunction) => {
+        const { email } = request.body;
+        try{
+            const data = await this.userService.getByEmailOrName(email);
+            response.status(200).json(data);
+        } catch(error) {
+            response.status(400).json({ error: 'Bad request', value: error.message });
+        }
+    }
 }
 
 export default UserController;

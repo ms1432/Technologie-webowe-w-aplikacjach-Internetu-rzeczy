@@ -3,8 +3,10 @@ import SignUpForm from './components/SignUpForm'
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import LoginForm from './components/LoginForm';
+import StarterForm from './components/StarterForm';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthCard from './components/AuthCard';
+import AllDevicesChart from './components/AllDevicesChart';
 
 function App() {
 
@@ -13,11 +15,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route element={<AuthCard />}>
-            <Route index element={<SignUpForm />} />
+            <Route index element={<StarterForm />} />
             <Route path='/login' element={<LoginForm />} />
-            </Route>
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path='/register' element={<SignUpForm />} />
           </Route>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/alldeviceschart" element={<AllDevicesChart />} />
+        </Route>
       </Routes>
     </BrowserRouter>
 

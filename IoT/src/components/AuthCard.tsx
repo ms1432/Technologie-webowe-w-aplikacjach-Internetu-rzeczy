@@ -7,7 +7,12 @@ function AuthCard() {
             <Card sx={{
                 padding: 3,
                 boxShadow: 3,
-                margin: 'auto'
+                margin: 'auto',
+                minWidth: 350,
+                minHeight: 200,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
             }}>
                 <Outlet />
             </Card >

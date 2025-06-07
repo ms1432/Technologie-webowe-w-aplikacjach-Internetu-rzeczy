@@ -15,7 +15,7 @@ type DeviceData = {
 function Dashboard() {
 
     const [deviceCount, setDeviceCount] = useState(5)
-    const [deviceData, setDeviceData] = useState<DeviceData[] | undefined>(undefined);
+    const [deviceData, setDeviceData] = useState<DeviceData[][] | undefined>(undefined);
     const [currentDeviceData, setCurrentDeviceData] = useState<Partial<DeviceData>>({
         deviceId: undefined,
         temperature: undefined,
@@ -30,7 +30,6 @@ function Dashboard() {
 
     useEffect(() => {
         const fetchData = () => {
-            console.log(`Bearer ${localStorage.getItem('token')}`)
             fetch('http://localhost:3100/api/data/latest',
                 {
                     method: "GET",
@@ -47,10 +46,51 @@ function Dashboard() {
                         : [];
                     setDeviceData(sorted);
                 });
+            fetch('http://localhost:3100/api/data/latestwo',
+                {
+                    method: "GET",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const sorted = Array.isArray(data)
+                        ? [...data].sort((a, b) => Number(a.deviceId) - Number(b.deviceId))
+                        : [];
+                    setDeviceData(sorted);
+                });
+            console.log(deviceData);
+            fetch(`http://localhost:3100/api/data/${currentDeviceId}/5`,
+                {
+                    method: "GET",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
+                    }
+                }
+            )
+                .then(response => response.json())
+                .then(data => {
+                    setCurrentDeviceData(data && data.length > 0 ? data[data.length - 1] : {
+                        deviceId: undefined,
+                        temperature: undefined,
+                        humidity: undefined,
+                        pressure: undefined
+                    });
+                    setTData(data ? data.map((d: { temperature: any; }) => d.temperature) : []);
+                    setHData(data ? data.map((d: { humidity: any; }) => d.humidity) : []);
+                    setPData(data ? data.map((d: { pressure: any; }) => d.pressure / 10) : []);
+                    setXLabels(data ? data.map((_: any, idx: number) => `Pomiar ${idx + 1}`) : []);
+                });
         };
 
+
         fetchData();
-        const interval = setInterval(fetchData, 30000);
+        const interval = setInterval(fetchData, 1000 * 60 * 1);
         return () => clearInterval(interval);
     }, []);
 
@@ -58,7 +98,7 @@ function Dashboard() {
 
     function changeCurrentDevice(idx: number) {
         setCurrentDeviceId(idx);
-        fetch(`http://localhost:3100/api/data/${idx}/1`,
+        fetch(`http://localhost:3100/api/data/${idx}/5`,
             {
                 method: "GET",
                 headers: {
@@ -78,7 +118,7 @@ function Dashboard() {
                 });
                 setTData(data ? data.map((d: { temperature: any; }) => d.temperature) : []);
                 setHData(data ? data.map((d: { humidity: any; }) => d.humidity) : []);
-                setPData(data ? data.map((d: { pressure: any; }) => d.pressure) : []);
+                setPData(data ? data.map((d: { pressure: any; }) => d.pressure / 10) : []);
                 setXLabels(data ? data.map((_: any, idx: number) => `Pomiar ${idx + 1}`) : []);
             });
     }
@@ -144,23 +184,41 @@ function Dashboard() {
 
             }}>
                 {Array.isArray(deviceData) && deviceData.length > 0 && (
-                    Array.from({ length: deviceCount }).map((_, idx) => (
-                        <div
-                            key={idx}
-                            onClick={() => changeCurrentDevice(idx)}>
-                            <DataCard
+                    Array.from({ length: deviceCount }).map((_, idx) => {
+                        const deviceHistory = deviceData[idx];
+                        let isBigDiff = false;
+                        if (deviceHistory && deviceHistory.length >= 2) {
+                            const last = deviceHistory[0];
+                            const prev = deviceHistory[1];
+                            if (last && prev && prev.temperature !== 0) {
+                                const diff = (Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature) +
+                                    Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity) +
+                                    Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure)) / 3;
+                                if (diff > 0.2) isBigDiff = true;
+                            }
+                        }
+                        return (
+                            <div
                                 key={idx}
-                                deviceID={deviceData[idx]?.deviceId}
-                                temperature={deviceData[idx]?.temperature}
-                                humidity={deviceData[idx]?.humidity}
-                                pressure={deviceData[idx]?.pressure ? (deviceData[idx].pressure / 10) : undefined}
-                            />
-                        </div>
-                    ))
+                                onClick={() => changeCurrentDevice(idx)}
+                                style={{
+                                    boxShadow: isBigDiff ? '0 0 16px 4px red' : undefined,
+                                    borderRadius: 8,
+                                }}
+                            >
+                                <DataCard
+                                    deviceID={idx}
+                                    temperature={deviceData[idx][0]?.temperature}
+                                    humidity={deviceData[idx][0]?.humidity}
+                                    pressure={deviceData[idx][0]?.pressure}
+                                />
+                            </div>
+                        );
+                    })
                 )}
             </div>
         </>
     )
-} 
+}
 
 export default Dashboard;

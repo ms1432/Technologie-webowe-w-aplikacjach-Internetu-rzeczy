@@ -47,6 +47,7 @@ const LoginForm: React.FC = () => {
             })
             .then((response) => {
                 localStorage.setItem('token', response.data.token);
+                localStorage.setItem('email', response.data.email);
                 navigate('/dashboard');
 
             })

@@ -16,7 +16,8 @@ class DataController implements Controller {
     }
 
     private initializeRoutes() {
-        this.router.get(`${this.path}/latest`,auth,  this.getLatestReadingsFromAllDevices);
+        this.router.get(`${this.path}/latest`,auth, this.getLatestReadingsFromAllDevices);
+        this.router.get(`${this.path}/latestwo`,auth, this.getLastTwoReadingsFromAllDevices);
         this.router.post(`${this.path}/:id`, auth, checkIdParam, this.addData);
         this.router.get(`${this.path}/:id/:num`, auth, checkIdParam, this.getPeriodData);
         this.router.get(`${this.path}/:id`, auth, checkIdParam, this.getAllDeviceData);
@@ -33,6 +34,18 @@ class DataController implements Controller {
             response.status(500).json({ error: error.message });
         }
     }
+
+    private getLastTwoReadingsFromAllDevices = async (request: Request, response: Response, next: NextFunction) => {
+    let data: IData[][] = [];
+    try {
+        for(let i = 0; i < config.supportedDevicesNum; i++){
+            data.push(await this.dataService.getLatestTwo(i.toString()));
+        }
+        response.status(200).json(data);
+    } catch (error) {
+        response.status(500).json({ error: error.message });
+    }
+}
 
     private addData = async (request: Request, response: Response, next: NextFunction) => {
         const { air } = request.body;

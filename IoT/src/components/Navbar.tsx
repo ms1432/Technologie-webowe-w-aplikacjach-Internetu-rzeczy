@@ -12,11 +12,17 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import LanguageIcon from '@mui/icons-material/Language';
+import { useNavigate } from 'react-router-dom';
 
-const pages = ['Devices state'];
+const pages = [
+    {label: 'Devices state', path: '/dashboard'}, 
+    {label: 'All Devices Data', path: '/alldeviceschart'}
+];
 
 function Navbar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+
+    const navigate = useNavigate();
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
@@ -25,6 +31,10 @@ function Navbar() {
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
     };
+
+    const handleNavigate = (path: string) => {
+        navigate(path);
+    }
 
     return (
         <AppBar position="static">
@@ -78,8 +88,8 @@ function Navbar() {
                         }}
                     >
                         {pages.map((page) => (
-                            <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                <Typography textAlign="center">{page}</Typography>
+                            <MenuItem key={page.label} onClick={() => handleNavigate(page.path)}>
+                                <Typography textAlign="center">{page.label}</Typography>
                             </MenuItem>
                         ))}
                     </Menu>
@@ -87,11 +97,11 @@ function Navbar() {
                 <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                     {pages.map((page) => (
                         <Button
-                            key={page}
-                            onClick={handleCloseNavMenu}
+                            key={page.label}
+                            onClick={() => handleNavigate(page.path)}
                             sx={{ my: 2, color: 'white', display: 'block' }}
                         >
-                            {page}
+                            {page.label}
                         </Button>
                     ))}
                 </Box>

@@ -58,6 +58,20 @@ export default class DataService {
         }
     }
 
+    public async getLatestTwo(deviceID: string) {
+        try {
+            const data = await DataModel.find(
+                { deviceId: deviceID },
+                { __v: 0, _id: 0 }
+            )
+            .limit(2)
+            .sort({ $natural: -1 });
+            return data;
+        } catch (error) {
+            throw new Error(`Query failed: ${error}`);
+        }
+    }
+
     public async deleteData(deviceID: string) {
         try {
             const data = await DataModel.deleteMany({ deviceId: deviceID });
