@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useEffect } from 'react'
-import { isExpired } from "react-jwt";
 
 import DataCard from './DataCard'
 import Chart from './Chart'
+import { isExpired } from 'react-jwt';
+
+import Button from '@mui/material/Button';
 
 type DeviceData = {
     deviceId: number;
@@ -11,6 +13,8 @@ type DeviceData = {
     humidity: number;
     pressure: number;
 };
+
+
 
 function Dashboard() {
 
@@ -63,29 +67,8 @@ function Dashboard() {
                     setDeviceData(sorted);
                 });
             console.log(deviceData);
-            fetch(`http://localhost:3100/api/data/${currentDeviceId}/5`,
-                {
-                    method: "GET",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
-                    }
-                }
-            )
-                .then(response => response.json())
-                .then(data => {
-                    setCurrentDeviceData(data && data.length > 0 ? data[data.length - 1] : {
-                        deviceId: undefined,
-                        temperature: undefined,
-                        humidity: undefined,
-                        pressure: undefined
-                    });
-                    setTData(data ? data.map((d: { temperature: any; }) => d.temperature) : []);
-                    setHData(data ? data.map((d: { humidity: any; }) => d.humidity) : []);
-                    setPData(data ? data.map((d: { pressure: any; }) => d.pressure / 10) : []);
-                    setXLabels(data ? data.map((_: any, idx: number) => `Pomiar ${idx + 1}`) : []);
-                });
+
+            fetchDataRecords(currentDeviceId, 5);
         };
 
 
@@ -94,11 +77,14 @@ function Dashboard() {
         return () => clearInterval(interval);
     }, []);
 
-
-
     function changeCurrentDevice(idx: number) {
         setCurrentDeviceId(idx);
-        fetch(`http://localhost:3100/api/data/${idx}/5`,
+        fetchDataRecords(idx, 5);
+        console.log(currentDeviceData)
+    }
+
+    function fetchDataRecords(idx: number, num: number) {
+        fetch(`http://localhost:3100/api/data/${idx}/${num}`,
             {
                 method: "GET",
                 headers: {
@@ -114,16 +100,33 @@ function Dashboard() {
                     deviceId: undefined,
                     temperature: undefined,
                     humidity: undefined,
-                    pressure: undefined
+                    pressure: undefined,
+                    readingDate: undefined
                 });
                 setTData(data ? data.map((d: { temperature: any; }) => d.temperature) : []);
                 setHData(data ? data.map((d: { humidity: any; }) => d.humidity) : []);
                 setPData(data ? data.map((d: { pressure: any; }) => d.pressure / 10) : []);
-                setXLabels(data ? data.map((_: any, idx: number) => `Pomiar ${idx + 1}`) : []);
+                setXLabels(data ? data.map((d: { readingDate: any; }) => parseDate(d.readingDate)) : []);
             });
     }
 
-    return (
+    function parseDate(readingDate: string) {
+        const date = new Date(readingDate);
+        return date.toLocaleString('pl-PL', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        }).replace(',', '');
+    }
+
+    return ( isExpired(localStorage.getItem('token') || '') ?
+        <>
+            <h1>Zaloguj się!</h1>
+            <Button variant="contained">Zaloguj się</Button>
+        </>
+        :
         <>
             <div style={{
                 display: 'flex',
@@ -191,10 +194,10 @@ function Dashboard() {
                             const last = deviceHistory[0];
                             const prev = deviceHistory[1];
                             if (last && prev && prev.temperature !== 0) {
-                                const diff = (Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature) +
-                                    Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity) +
-                                    Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure)) / 3;
-                                if (diff > 0.2) isBigDiff = true;
+                                const diffTemp = Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature);
+                                const diffHum = Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity);
+                                const diffPress = Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure);
+                                if (diffTemp > 0.2 || diffHum > 0.2 || diffPress > 0.2) isBigDiff = true;
                             }
                         }
                         return (
@@ -204,6 +207,7 @@ function Dashboard() {
                                 style={{
                                     boxShadow: isBigDiff ? '0 0 16px 4px red' : undefined,
                                     borderRadius: 8,
+                                    background: (idx === currentDeviceId) ? '#0eb4b2' : undefined
                                 }}
                             >
                                 <DataCard
@@ -211,13 +215,15 @@ function Dashboard() {
                                     temperature={deviceData[idx][0]?.temperature}
                                     humidity={deviceData[idx][0]?.humidity}
                                     pressure={deviceData[idx][0]?.pressure}
+                                    backgroundColor={idx === currentDeviceId ? '#0eb4b2' : undefined}
                                 />
                             </div>
                         );
                     })
                 )}
             </div>
-        </>
+        </>  
+        
     )
 }
 

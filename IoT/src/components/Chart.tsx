@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { LineChart } from '@mui/x-charts';
 
 const margin = { right: 24 };
@@ -35,7 +34,6 @@ function Chart({Temperature, Humidity, Pressure, Data}: ChartProps) {
         
       }]}
       yAxis={[{
-        width: 50,
         tickLabelStyle: { fill: 'white' }
       }]}
       margin={margin}

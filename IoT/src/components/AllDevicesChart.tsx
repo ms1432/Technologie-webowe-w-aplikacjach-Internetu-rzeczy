@@ -3,7 +3,7 @@
 function AllDevicesChart() {
     return(
         <>
-            <h1>Działa</h1>
+            <h1>Kiedys to dodam</h1>
         </>
     )
 }

@@ -9,9 +9,10 @@ type InfoCardProps = {
     temperature?: number | string | undefined;
     humidity?: number | string | undefined;
     pressure?: number | string | undefined;
+    backgroundColor?: string;
 };
 
-function DataCard({ deviceID, temperature, humidity, pressure }: InfoCardProps) {
+function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor}: InfoCardProps) {
 
     const noData =
         (temperature === undefined || temperature === 'undefined') &&
@@ -19,7 +20,7 @@ function DataCard({ deviceID, temperature, humidity, pressure }: InfoCardProps) 
         (pressure === undefined || pressure === 'undefined');
 
     return (
-        <Card sx={{ backgroundColor: '#1e1e1e', color: 'white', padding: 2, width: '260px', height: '220px', minHeight: 175, ":hover": { backgroundColor: '#0eb4b2' } }}>
+        <Card sx={{ backgroundColor: backgroundColor || '#1e1e1e', color: 'white', padding: 2, width: '260px', height: '220px', minHeight: 175}}>
             {noData ? (<>
                 <Typography
                     variant="h5"
