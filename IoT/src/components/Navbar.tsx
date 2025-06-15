@@ -13,8 +13,9 @@ import LanguageIcon from '@mui/icons-material/Language';
 import { useNavigate } from 'react-router-dom';
 
 const pages = [
-    {label: 'Devices state', path: '/dashboard'}, 
-    {label: 'All Devices Data', path: '/alldeviceschart'}
+    { label: 'Devices state', path: '/dashboard' },
+    { label: 'All Devices Data', path: '/alldeviceschart' },
+    { label: 'Admin Panel', path: '/adminpanel' }
 ];
 
 function Navbar() {
@@ -34,81 +35,86 @@ function Navbar() {
         navigate(path);
     }
 
+    const token = localStorage.getItem('token');
+    const isAdmin = token ? JSON.parse(atob(token.split('.')[1])).isAdmin : false;
+
     return (
         <AppBar position="static">
             <Container maxWidth={false} sx={{ backgroundColor: 'black' }}>
                 <Toolbar disableGutters>
-                <Typography
-                    variant="h6"
-                    noWrap
-                    sx={{
-                        mr: 2,
-                        display: { xs: 'none', md: 'flex' },
-                        alignItems: 'center',
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        letterSpacing: '.3rem',
-                        color: 'inherit',
-                        textDecoration: 'none',
-                    }}
-                >
-                    <LanguageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-                    IoT Dashboard
-                </Typography>
-
-                <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                    <IconButton
-                        size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleOpenNavMenu}
-                        color="inherit"
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorElNav}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left',
-                        }}
-                        open={Boolean(anchorElNav)}
-                        onClose={handleCloseNavMenu}
+                    <Typography
+                        variant="h6"
+                        noWrap
                         sx={{
-                            display: { xs: 'block', md: 'none' },
+                            mr: 2,
+                            display: { xs: 'none', md: 'flex' },
+                            alignItems: 'center',
+                            fontFamily: 'monospace',
+                            fontWeight: 700,
+                            letterSpacing: '.3rem',
+                            color: 'inherit',
+                            textDecoration: 'none',
                         }}
                     >
-                        {pages.map((page) => (
-                            <MenuItem key={page.label} onClick={() => handleNavigate(page.path)}>
-                                <Typography textAlign="center">{page.label}</Typography>
-                            </MenuItem>
-                        ))}
-                    </Menu>
-                </Box>
-                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                    {pages.map((page) => (
-                        <Button
-                            key={page.label}
-                            onClick={() => handleNavigate(page.path)}
-                            sx={{ my: 2, color: 'white', display: 'block' }}
-                        >
-                            {page.label}
-                        </Button>
-                    ))}
-                </Box>
+                        <LanguageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                        IoT Dashboard
+                    </Typography>
 
-                <div className="logo"></div>
-            </Toolbar>
-        </Container>
-       </AppBar>
-   );
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                        <IconButton
+                            size="large"
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleOpenNavMenu}
+                            color="inherit"
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorElNav}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left',
+                            }}
+                            open={Boolean(anchorElNav)}
+                            onClose={handleCloseNavMenu}
+                            sx={{
+                                display: { xs: 'block', md: 'none' },
+                            }}
+                        >
+                            {pages.map((page) => (
+                                <MenuItem key={page.label} onClick={() => handleNavigate(page.path)}>
+                                    <Typography textAlign="center">{page.label}</Typography>
+                                </MenuItem>
+                            ))}
+                        </Menu>
+                    </Box>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                        {pages.map((page) =>
+                            (page.label !== 'Admin Panel' || isAdmin) && (
+                                <Button
+                                    key={page.label}
+                                    onClick={() => handleNavigate(page.path)}
+                                    sx={{ my: 2, color: 'white', display: 'block' }}
+                                >
+                                    {page.label}
+                                </Button>
+                            )
+                        )}
+                    </Box>
+
+                    <div className="logo"></div>
+                </Toolbar>
+            </Container>
+        </AppBar>
+    );
 }
 
 export default Navbar;

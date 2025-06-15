@@ -7,6 +7,7 @@ import StarterForm from './components/StarterForm';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthCard from './components/AuthCard';
 import AllDevicesChart from './components/AllDevicesChart';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
           </Route>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/alldeviceschart" element={<AllDevicesChart />} />
+          <Route path='/adminpanel' element={<AdminPanel />} />
         </Route>
       </Routes>
     </BrowserRouter>

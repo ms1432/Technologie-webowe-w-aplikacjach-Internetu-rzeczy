@@ -6,10 +6,10 @@ type ChartProps = {
   Temperature?: number[];
   Humidity?: number[];
   Pressure?: number[];
-  Data?: string[] 
+  Data?: string[]
 };
 
-function Chart({Temperature, Humidity, Pressure, Data}: ChartProps) {
+function Chart({ Temperature, Humidity, Pressure, Data }: ChartProps) {
   return (
     <LineChart
       sx={{
@@ -19,19 +19,30 @@ function Chart({Temperature, Humidity, Pressure, Data}: ChartProps) {
         '.MuiChartsAxis-root line': { stroke: 'white' },
         '.MuiChartsAxis-tickLabel': { fill: 'white' },
         '.MuiChartsAxis-label': { fill: 'white' },
-        '.MuiChartsGrid-line': { stroke: 'white'},
+        '.MuiChartsGrid-line': { stroke: 'white' },
       }}
       height={300}
       series={[
-        { data: Temperature, label: 'Temperature [C]' },
-        { data: Humidity, label: 'Humidity [%]' },
-        { data: Pressure, label: 'Pressure x 10 [hPa]' },
+        {
+          data: Temperature,
+          label: 'Temperature [C]',
+          curve: "natural"
+        },
+        {
+          data: Humidity,
+          label: 'Humidity [%]',
+          curve: "natural"
+        },
+        {
+          data: Pressure,
+          label: 'Pressure x 10 [hPa]',
+          curve: "natural"
+        },
       ]}
       xAxis={[{
         scaleType: 'point',
         data: Data,
         tickLabelStyle: { fill: 'white' },
-        
       }]}
       yAxis={[{
         tickLabelStyle: { fill: 'white' }
@@ -41,7 +52,7 @@ function Chart({Temperature, Humidity, Pressure, Data}: ChartProps) {
       slotProps={{
         legend: {
           labelStyle: { color: 'white', fill: 'white' },
-          
+
         },
       }}
     />

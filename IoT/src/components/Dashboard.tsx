@@ -4,8 +4,11 @@ import { useEffect } from 'react'
 import DataCard from './DataCard'
 import Chart from './Chart'
 import { isExpired } from 'react-jwt';
+import { useNavigate } from 'react-router-dom';
 
 import Button from '@mui/material/Button';
+import { Card, Label } from 'reactstrap';
+import FormCard from './FormCard';
 
 type DeviceData = {
     deviceId: number;
@@ -19,68 +22,51 @@ type DeviceData = {
 function Dashboard() {
 
     const [deviceCount, setDeviceCount] = useState(5)
-    const [deviceData, setDeviceData] = useState<DeviceData[][] | undefined>(undefined);
+    const [deviceData, setDeviceData] = useState<DeviceData[][] | undefined>([]);
     const [currentDeviceData, setCurrentDeviceData] = useState<Partial<DeviceData>>({
         deviceId: undefined,
         temperature: undefined,
         humidity: undefined,
         pressure: undefined
     });
-    const [currentDeviceId, setCurrentDeviceId] = useState(1);
-    const [tData, setTData] = useState([]);
-    const [hData, setHData] = useState([]);
-    const [pData, setPData] = useState([]);
-    const [xLabels, setXLabels] = useState([]);
+    const [currentDeviceId, setCurrentDeviceId] = useState(2);
+    const [chartData, setChartData] = useState<{
+        tData: number[];
+        hData: number[];
+        pData: number[];
+        xLabels: string[];
+    }>({
+        tData: [],
+        hData: [],
+        pData: [],
+        xLabels: [],
+    });
 
-    useEffect(() => {
-        const fetchData = () => {
-            fetch('http://localhost:3100/api/data/latest',
-                {
-                    method: "GET",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const sorted = Array.isArray(data)
-                        ? [...data].sort((a, b) => Number(a.deviceId) - Number(b.deviceId))
-                        : [];
-                    setDeviceData(sorted);
-                });
-            fetch('http://localhost:3100/api/data/latestwo',
-                {
-                    method: "GET",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const sorted = Array.isArray(data)
-                        ? [...data].sort((a, b) => Number(a.deviceId) - Number(b.deviceId))
-                        : [];
-                    setDeviceData(sorted);
-                });
-            console.log(deviceData);
+    const MAX_DEVICES = 17;
+    const MAX_DATA = 15;
 
-            fetchDataRecords(currentDeviceId, 5);
-        };
+    const navigate = useNavigate();
 
+    const headerOptions = {
+        method: "GET",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
+        }
+    };
 
-        fetchData();
-        const interval = setInterval(fetchData, 1000 * 60 * 1);
-        return () => clearInterval(interval);
-    }, []);
-
-    function changeCurrentDevice(idx: number) {
-        setCurrentDeviceId(idx);
-        fetchDataRecords(idx, 5);
-        console.log(currentDeviceData)
+    async function fetchLatestData() {
+        const promises = [];
+        for (let i = 0; i < MAX_DEVICES; i++) {
+            promises.push(
+                fetch(`http://localhost:3100/api/data/${i}/2`, headerOptions)
+                    .then(response => response.json())
+                    .then(data => data)
+            );
+        }
+        const allData = await Promise.all(promises);
+        setDeviceData(allData);
     }
 
     function fetchDataRecords(idx: number, num: number) {
@@ -96,35 +82,59 @@ function Dashboard() {
         )
             .then(response => response.json())
             .then(data => {
-                setCurrentDeviceData(data && data.length > 0 ? data[data.length - 1] : {
+                setCurrentDeviceData(data && data.length > 0 ? data[0] : {
                     deviceId: undefined,
                     temperature: undefined,
                     humidity: undefined,
                     pressure: undefined,
                     readingDate: undefined
                 });
-                setTData(data ? data.map((d: { temperature: any; }) => d.temperature) : []);
-                setHData(data ? data.map((d: { humidity: any; }) => d.humidity) : []);
-                setPData(data ? data.map((d: { pressure: any; }) => d.pressure / 10) : []);
-                setXLabels(data ? data.map((d: { readingDate: any; }) => parseDate(d.readingDate)) : []);
+                setChartData({
+                    tData: data ? data.map((d: { temperature: any }) => d.temperature) : [],
+                    hData: data ? data.map((d: { humidity: any }) => d.humidity) : [],
+                    pData: data ? data.map((d: { pressure: any }) => d.pressure / 10) : [],
+                    xLabels: data ? data.map((d: { readingDate: any }) => parseDate(d.readingDate)) : [],
+                });
             });
+    }
+
+    function handleDevicesValueChange(value: number) {
+        setDeviceCount(value);
+    }
+
+    function changeCurrentDevice(idx: number) {
+        setCurrentDeviceId(idx);
     }
 
     function parseDate(readingDate: string) {
         const date = new Date(readingDate);
         return date.toLocaleString('pl-PL', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
         }).replace(',', '');
     }
 
-    return ( isExpired(localStorage.getItem('token') || '') ?
+    useEffect(() => {
+        fetchLatestData();
+        const interval = setInterval(fetchLatestData, 1000 * 60 * 5);
+        return () => clearInterval(interval);
+
+    }, []);
+
+
+    useEffect(() => {
+        fetchDataRecords(currentDeviceId, MAX_DATA); 
+    }, [currentDeviceId]);
+
+    useEffect(() => {
+        if (isExpired(localStorage.getItem('token') || '')) {
+            navigate('/login');
+        }
+    }, []);
+
+    return (isExpired(localStorage.getItem('token') || '') ?
         <>
-            <h1>Zaloguj się!</h1>
-            <Button variant="contained">Zaloguj się</Button>
+            <>Zaloguj się : - D</>
         </>
         :
         <>
@@ -149,7 +159,7 @@ function Dashboard() {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        width: '40%',
+                        width: '25%',
                     }}>
                         {currentDeviceData && (
                             <DataCard
@@ -163,15 +173,17 @@ function Dashboard() {
                     <div style={{
                         display: 'flex',
                         justifyContent: 'center',
-                        width: '60%',
+                        width: '75%',
                         padding: '5vh',
+                        gap: "20px"
                     }}>
                         <Chart
-                            Temperature={tData}
-                            Humidity={hData}
-                            Pressure={pData}
-                            Data={xLabels}
+                            Temperature={chartData.tData}
+                            Humidity={chartData.hData}
+                            Pressure={chartData.pData}
+                            Data={chartData.xLabels}
                         />
+                        <FormCard onDevicesValueChange={handleDevicesValueChange}/>
                     </div>
                 </div>
             </div>
@@ -181,49 +193,44 @@ function Dashboard() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: '60%',
-                WebkitJustifyContent: 'space-between',
                 padding: '5vh',
                 gap: '5vh',
 
             }}>
                 {Array.isArray(deviceData) && deviceData.length > 0 && (
                     Array.from({ length: deviceCount }).map((_, idx) => {
-                        const deviceHistory = deviceData[idx];
                         let isBigDiff = false;
-                        if (deviceHistory && deviceHistory.length >= 2) {
-                            const last = deviceHistory[0];
-                            const prev = deviceHistory[1];
-                            if (last && prev && prev.temperature !== 0) {
-                                const diffTemp = Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature);
-                                const diffHum = Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity);
-                                const diffPress = Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure);
-                                if (diffTemp > 0.2 || diffHum > 0.2 || diffPress > 0.2) isBigDiff = true;
-                            }
+                        const deviceArr = deviceData[idx];
+                        const last = deviceArr && deviceArr[0];
+                        const prev = deviceArr && deviceArr[1];
+                        if (last && prev && prev.temperature !== 0) {
+                            const diffTemp = Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature);
+                            const diffHum = Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity);
+                            const diffPress = Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure);
+                            if (diffTemp > 0.2 || diffHum > 0.2 || diffPress > 0.2) isBigDiff = true;
                         }
                         return (
                             <div
                                 key={idx}
                                 onClick={() => changeCurrentDevice(idx)}
                                 style={{
-                                    boxShadow: isBigDiff ? '0 0 16px 4px red' : undefined,
-                                    borderRadius: 8,
-                                    background: (idx === currentDeviceId) ? '#0eb4b2' : undefined
                                 }}
                             >
                                 <DataCard
                                     deviceID={idx}
-                                    temperature={deviceData[idx][0]?.temperature}
-                                    humidity={deviceData[idx][0]?.humidity}
-                                    pressure={deviceData[idx][0]?.pressure}
+                                    temperature={deviceArr && deviceArr[0] ? deviceArr[0].temperature : undefined}
+                                    humidity={deviceArr && deviceArr[0] ? deviceArr[0].humidity : undefined}
+                                    pressure={deviceArr && deviceArr[0] ? deviceArr[0].pressure : undefined}
                                     backgroundColor={idx === currentDeviceId ? '#0eb4b2' : undefined}
+                                    border={isBigDiff ? '5px solid red' : undefined}
                                 />
                             </div>
                         );
                     })
                 )}
             </div>
-        </>  
-        
+        </>
+
     )
 }
 

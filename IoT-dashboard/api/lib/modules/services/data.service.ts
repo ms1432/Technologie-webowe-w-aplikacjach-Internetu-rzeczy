@@ -16,7 +16,8 @@ export default class DataService {
 
     public async query(deviceID: string) {
         try {
-            const data = await DataModel.find({ deviceId: deviceID }, { __v: 0, _id: 0 });
+            const data = await DataModel.find({ deviceId: deviceID }, { __v: 0, _id: 0 })
+            .sort( { readingDate: -1 });
             return data;
         } catch (error) {
             throw new Error(`Query failed: ${error}`);
@@ -32,9 +33,8 @@ export default class DataService {
                         { deviceId: i },
                         { __v: 0, _id: 0 }
                     )
-                        .limit(1)
-                        .sort({ $natural: -1 });
-
+                        .sort({ readingDate: -1 })
+                        .limit(1);
                     latestData.push(latestEntry || { deviceId: i });
                 } catch (error: any) {
                     console.error(`Błąd podczas pobierania danych dla urządzenia ${i}: ${error.message}`);
@@ -51,21 +51,7 @@ export default class DataService {
             const data = await DataModel.findOne(
                 { deviceId: deviceID },
                 { __v: 0, _id: 0 }
-            ).sort({ $natural: -1 });
-            return data;
-        } catch (error) {
-            throw new Error(`Query failed: ${error}`);
-        }
-    }
-
-    public async getLatestTwo(deviceID: string) {
-        try {
-            const data = await DataModel.find(
-                { deviceId: deviceID },
-                { __v: 0, _id: 0 }
-            )
-            .limit(2)
-            .sort({ $natural: -1 });
+            ).sort({ readingDate: -1 });
             return data;
         } catch (error) {
             throw new Error(`Query failed: ${error}`);
