@@ -6,6 +6,7 @@ import { IData } from 'modules/models/data.model';
 import { config } from '../config'
 import Joi from 'joi';
 import { auth } from "../middlewares/auth.middleware"
+import { admin } from '../middlewares/admin.middleware';
 
 class DataController implements Controller {
     public path = '/api/data';
@@ -21,8 +22,9 @@ class DataController implements Controller {
         this.router.get(`${this.path}/:id/:num`, auth, checkIdParam, this.getPeriodData);
         this.router.get(`${this.path}/:id`, auth, checkIdParam, this.getAllDeviceData);
         this.router.get(`${this.path}/:id/latest`, auth, checkIdParam, this.getPeriodData);
-        this.router.delete(`${this.path}/all`, auth, this.cleanAllDevices);
-        this.router.delete(`${this.path}/:id`, auth, checkIdParam, this.cleanDeviceData);
+        this.router.delete(`${this.path}/all`, admin, this.cleanAllDevices);
+        this.router.delete(`${this.path}/:id`, admin, checkIdParam, this.cleanDeviceData);
+        this.router.delete(`${this.path}/:id/:hour`, admin, this.cleanDeviceDataOlderThan);
     }
 
     private getLatestReadingsFromAllDevices = async (request: Request, response: Response, next: NextFunction) => {
@@ -106,6 +108,16 @@ class DataController implements Controller {
             await this.dataService.deleteData(id);
             response.status(200).json("Usunieto");
         } catch (error) {
+            response.status(500).json({ error: error.message });
+        }
+    }
+
+    private cleanDeviceDataOlderThan = async (request: Request, response: Response, next: NextFunction) => {
+        const { id, hour } = request.params;
+        try{
+            await this.dataService.deleteDataOlderThan(id, parseInt(hour));
+            response.status(200).json(`Usunieto dane starsze niż: ${hour}`);
+        }catch(error){
             response.status(500).json({ error: error.message });
         }
     }

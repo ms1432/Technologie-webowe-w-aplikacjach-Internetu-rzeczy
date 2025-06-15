@@ -1,13 +1,13 @@
 
-import SignUpForm from './components/SignUpForm'
-import Layout from './components/Layout';
-import Dashboard from './components/Dashboard';
-import LoginForm from './components/LoginForm';
-import StarterForm from './components/StarterForm';
+import SignUpForm from './components/AuthForms/SignUpForm'
+import Layout from './components/Layout/Layout';
+import Dashboard from './components/Dashboard/Dashboard';
+import LoginForm from './components/AuthForms/LoginForm';
+import StarterForm from './components/AuthForms/StarterForm';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AuthCard from './components/AuthCard';
-import AllDevicesChart from './components/AllDevicesChart';
-import AdminPanel from './components/AdminPanel';
+import AuthCard from './components/AuthForms/AuthCard';
+import AllDevicesChart from './components/AllDevicesData/AllDevicesChart';
+import AdminPanel from './components/AdminPanel/AdminPanel';
 
 function App() {
 

@@ -1,4 +1,4 @@
-import { Button, Typography, Slider } from '@mui/material';
+import { Typography, Slider } from '@mui/material';
 import Card from '@mui/material/Card';
 import { useEffect, useState } from 'react';
 

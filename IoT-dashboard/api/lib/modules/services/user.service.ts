@@ -40,6 +40,15 @@ class UserService {
             throw new Error('Wystąpił błąd podczas usuwania danych');
         }
     }
+    public async getAll() {
+    try {
+        const users = await UserModel.find({});
+        return users;
+    } catch (error) {
+        console.error('Wystąpił błąd podczas pobierania użytkowników:', error);
+        throw new Error('Wystąpił błąd podczas pobierania użytkowników');
+    }
+}
 }
 
 export default UserService;
