@@ -2,6 +2,7 @@ import Card from '@mui/material/Card';
 import { Outlet } from 'react-router-dom';
 
 function AuthCard() {
+
     return (
         <>
             <Card sx={{

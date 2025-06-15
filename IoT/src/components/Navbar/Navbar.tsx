@@ -11,11 +11,13 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import LanguageIcon from '@mui/icons-material/Language';
 import { useNavigate } from 'react-router-dom';
+import { isExpired } from 'react-jwt';
 
 const pages = [
     { label: 'Devices state', path: '/dashboard' },
     { label: 'All Devices Data', path: '/alldeviceschart' },
-    { label: 'Admin Panel', path: '/adminpanel' }
+    { label: 'Admin Panel', path: '/adminpanel' },
+    { label: 'Logout', path: '/' }
 ];
 
 function Navbar() {
@@ -32,6 +34,9 @@ function Navbar() {
     };
 
     const handleNavigate = (path: string) => {
+        if (path === '/') {
+            localStorage.clear()
+        }
         navigate(path);
     }
 
@@ -96,20 +101,24 @@ function Navbar() {
                             ))}
                         </Menu>
                     </Box>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) =>
-                            (page.label !== 'Admin Panel' || isAdmin) && (
-                                <Button
-                                    key={page.label}
-                                    onClick={() => handleNavigate(page.path)}
-                                    sx={{ my: 2, color: 'white', display: 'block' }}
-                                >
-                                    {page.label}
-                                </Button>
-                            )
-                        )}
-                    </Box>
-
+                    {isExpired(localStorage.getItem('token') || '') ?
+                        <>
+                        </>
+                        :
+                        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                            {pages.map((page) =>
+                                (page.label !== 'Admin Panel' || isAdmin) && (
+                                    <Button
+                                        key={page.label}
+                                        onClick={() => handleNavigate(page.path)}
+                                        sx={{ my: 2, color: 'white', display: 'block' }}
+                                    >
+                                        {page.label}
+                                    </Button>
+                                )
+                            )}
+                        </Box>
+                    }
                     <div className="logo"></div>
                 </Toolbar>
             </Container>

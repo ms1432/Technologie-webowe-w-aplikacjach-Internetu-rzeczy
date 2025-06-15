@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Chart from './Chart'
+import Chart from '../Chart/Chart'
 import { isExpired } from 'react-jwt';
 import { useNavigate } from 'react-router-dom';
 

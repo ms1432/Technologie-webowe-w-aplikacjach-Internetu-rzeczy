@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { useEffect } from 'react'
 
-import DataCard from './DataCard'
-import Chart from './Chart'
+import DataCard from '../DataCard/DataCard'
+import Chart from '../Chart/Chart'
 import { isExpired } from 'react-jwt';
 import { useNavigate } from 'react-router-dom';
 
-import Button from '@mui/material/Button';
-import { Card, Label } from 'reactstrap';
 import FormCard from './FormCard';
 
 type DeviceData = {
@@ -43,7 +41,7 @@ function Dashboard() {
     });
 
     const MAX_DEVICES = 17;
-    const MAX_DATA = 15;
+    const MAX_DATA = 10;
 
     const navigate = useNavigate();
 
@@ -70,16 +68,7 @@ function Dashboard() {
     }
 
     function fetchDataRecords(idx: number, num: number) {
-        fetch(`http://localhost:3100/api/data/${idx}/${num}`,
-            {
-                method: "GET",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
-                }
-            }
-        )
+        fetch(`http://localhost:3100/api/data/${idx}/${num}`, headerOptions)
             .then(response => response.json())
             .then(data => {
                 setCurrentDeviceData(data && data.length > 0 ? data[0] : {

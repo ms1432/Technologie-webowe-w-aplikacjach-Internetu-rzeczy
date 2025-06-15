@@ -66,5 +66,18 @@ export default class DataService {
             throw new Error(`Query failed: ${error}`);
         }
     }
+
+    public async deleteDataOlderThan(deviceID: string, hours: number) {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setHours(cutoffDate.getHours() - hours);
+
+      const result = await DataModel.deleteMany({ deviceId: deviceID, readingDate: { $lt: cutoffDate }});
+      return result;
+    } catch (error) {
+      console.error("Błąd podczas usuwania starych danych:", error);
+      throw new Error(`Query failed: ${error}`);
+    }
+  }
 }
 

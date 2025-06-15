@@ -20,9 +20,10 @@ class UserController implements Controller {
         this.router.post(`${this.path}/create`, this.createNewOrUpdate);
         this.router.post(`${this.path}/auth`, this.authenticate);
         this.router.delete(`${this.path}/logout/:userId`, auth, this.removeHashSession);
-        this.router.post(`${this.path}/resetPasswd`, this.resetPasswd);
+        this.router.post(`${this.path}/resetPasswd`, auth, this.resetPasswd);
         this.router.post(`${this.path}/deleteUser/:userId`, admin, this.deleteUser);
         this.router.post(`${this.path}/getUserData`, auth, this.getUserData);
+        this.router.post(`${this.path}/getAllUsersData`, admin, this.getAllUserData);
     }
 
     private authenticate = async (request: Request, response: Response, next: NextFunction) => {
@@ -117,6 +118,15 @@ class UserController implements Controller {
         const { email } = request.body;
         try{
             const data = await this.userService.getByEmailOrName(email);
+            response.status(200).json(data);
+        } catch(error) {
+            response.status(400).json({ error: 'Bad request', value: error.message });
+        }
+    }
+
+    private getAllUserData = async(request: Request, response: Response, next: NextFunction) => {
+        try{
+            const data = await this.userService.getAll();
             response.status(200).json(data);
         } catch(error) {
             response.status(400).json({ error: 'Bad request', value: error.message });
