@@ -1,10 +1,11 @@
-import { Button, Slider, Typography, MenuItem, Select } from "@mui/material";
+import { Button, Slider, Typography, MenuItem, Select, Box, Alert } from "@mui/material";
 import { useState } from "react";
 
 function DataForm() {
 
     const [inputHourValue, setInputHourValue] = useState(1);
     const [indexValue, setIndexValue] = useState(2);
+    const [alertState, setAlertState] = useState(0);
 
     const headerOptions = {
         method: "Delete",
@@ -15,17 +16,35 @@ function DataForm() {
         }
     };
 
-    function deleteDataOlderThan(idx: number) {
-        fetch(`http://localhost:3100/api/data/${idx}/${inputHourValue}`, headerOptions)
+    async function deleteDataOlderThan(idx: number) {
+        const response = await fetch(`http://localhost:3100/api/data/${idx}/${inputHourValue}`, headerOptions)
             .then(response => response.json())
             .then(data => data)
+        handleResponse(response.ok);
     }
 
-    function deleteDataOlderThanForAllDev() {
+    async function deleteDataOlderThanForAllDev() {
+        const results = [];
         for (let i = 0; i < 17; i++) {
-            fetch(`http://localhost:3100/api/data/${i}/${inputHourValue}`, headerOptions)
+            const response = await fetch(`http://localhost:3100/api/data/${i}/${inputHourValue}`, headerOptions)
                 .then(response => response.json())
                 .then(data => data)
+            results.push(response.ok)
+        }
+        const result = results.some(i => i === 1);
+        handleResponse(result);
+    }
+    function handleResponse(res: boolean){
+        if (res) {
+            setAlertState(1);
+            setTimeout(() => {
+                setAlertState(0);
+            }, 5000);
+        } else {
+            setAlertState(2);
+            setTimeout(() => {
+                setAlertState(0);
+            }, 5000);
         }
     }
 
@@ -79,11 +98,19 @@ function DataForm() {
             </Typography>
             <Select
                 value={indexValue}
-                sx={{ bgcolor: '#0eb4b2', color: "black", width: "20%", mt: 2 }}
+                sx={{
+                    color: "black",
+                    bgcolor: '#cccccc',
+                    width: "20%",
+                    mt: 2,
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#0eb4b2",
+                    },
+                }}
                 onChange={(event) => setIndexValue(parseInt(event.target.value as string))}
             >
                 {Array.from({ length: 17 }, (_, i) => i).map((number) => (
-                    <MenuItem key={number} value={number}>
+                    <MenuItem key={number} value={number} sx={{}}>
                         {number}
                     </MenuItem>
                 ))}
@@ -101,6 +128,24 @@ function DataForm() {
                 onClick={() => deleteDataOlderThanForAllDev()}>
                 Usuń resztę danych dla każdego urządzenia
             </Button>
+            <Box sx={{ minHeight: "50px", mb: 2 }}>
+                {alertState === 1 ?
+                    <Alert variant="outlined" severity="error" sx={{
+                        color: 'white'
+                    }}>
+                        Error! Nie udało się usunąć danych
+                    </Alert>
+                    :
+                    alertState === 2 ?
+                        <Alert variant="outlined" severity="success" sx={{
+                            color: 'white'
+                        }}>
+                            Usunięto dane
+                        </Alert>
+                        :
+                        null
+                }
+            </Box>
         </>
     )
 }

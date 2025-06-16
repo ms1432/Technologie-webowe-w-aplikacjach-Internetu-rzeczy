@@ -21,9 +21,9 @@ class UserController implements Controller {
         this.router.post(`${this.path}/auth`, this.authenticate);
         this.router.delete(`${this.path}/logout/:userId`, auth, this.removeHashSession);
         this.router.post(`${this.path}/resetPasswd`, auth, this.resetPasswd);
-        this.router.post(`${this.path}/deleteUser/:userId`, admin, this.deleteUser);
-        this.router.post(`${this.path}/getUserData`, auth, this.getUserData);
-        this.router.post(`${this.path}/getAllUsersData`, admin, this.getAllUserData);
+        this.router.delete(`${this.path}/deleteUser/:userId`, admin, this.deleteUser);
+        this.router.get(`${this.path}/getUserData`, auth, this.getUserData);
+        this.router.get(`${this.path}/getAllUsersData`, admin, this.getAllUserData);
     }
 
     private authenticate = async (request: Request, response: Response, next: NextFunction) => {
