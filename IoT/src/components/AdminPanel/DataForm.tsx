@@ -1,5 +1,6 @@
 import { Button, Slider, Typography, MenuItem, Select, Box, Alert } from "@mui/material";
 import { useState } from "react";
+import { MAX_DEVICES } from "../../types/types";
 
 function DataForm() {
 
@@ -25,7 +26,7 @@ function DataForm() {
 
     async function deleteDataOlderThanForAllDev() {
         const results = [];
-        for (let i = 0; i < 17; i++) {
+        for (let i = 0; i < MAX_DEVICES; i++) {
             const response = await fetch(`http://localhost:3100/api/data/${i}/${inputHourValue}`, headerOptions)
                 .then(response => response.json())
                 .then(data => data)
@@ -109,7 +110,7 @@ function DataForm() {
                 }}
                 onChange={(event) => setIndexValue(parseInt(event.target.value as string))}
             >
-                {Array.from({ length: 17 }, (_, i) => i).map((number) => (
+                {Array.from({ length: MAX_DEVICES }, (_, i) => i).map((number) => (
                     <MenuItem key={number} value={number} sx={{}}>
                         {number}
                     </MenuItem>

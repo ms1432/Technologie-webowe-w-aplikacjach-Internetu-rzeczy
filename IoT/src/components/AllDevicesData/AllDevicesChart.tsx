@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import Chart from '../Chart/Chart'
 import { isExpired } from 'react-jwt';
 import { useNavigate } from 'react-router-dom';
+import type { ChartData } from '../../types/types';
+import { MAX_DEVICES } from '../../types/types';
 
 function AllDevicesChart() {
     const [allDevicesData, setAllDevicesData] = useState<any[]>([]);
-    const deviceCount = 17;
 
     const navigate = useNavigate();
 
@@ -23,7 +24,7 @@ function AllDevicesChart() {
         const oneHourAgo = new Date(now.getTime() - 1000 * 60 * 60);
 
         const promises = [];
-        for (let i = 0; i < deviceCount; i++) {
+        for (let i = 0; i < MAX_DEVICES; i++) {
             promises.push(
                 fetch(`http://localhost:3100/api/data/${i}/20`, headerOptions)
                     .then(response => response.json())
@@ -53,12 +54,13 @@ function AllDevicesChart() {
     }, []);
 
     const flatData = allDevicesData.flat();
-    const Temperature = flatData.map((d: any) => d.temperature);
-    const Humidity = flatData.map((d: any) => d.humidity);
-    const Pressure = flatData.map((d: any) => d.pressure / 10);
-    const Data = flatData.map((d: any) =>
-        new Date(d.readingDate).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
-    );
+    const chartData: ChartData = {
+        tData: flatData.map((d: any) => d.temperature),
+        hData: flatData.map((d: any) => d.humidity),
+        pData: flatData.map((d: any) => d.pressure / 10),
+        xLabels: flatData.map((d: any) =>
+        new Date(d.readingDate).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }))
+    }
 
     return (isExpired(localStorage.getItem('token') || '') ?
         <>
@@ -76,10 +78,7 @@ function AllDevicesChart() {
                 WebkitJustifyContent: 'space-between'
             }}>
                 <Chart
-                    Temperature={Temperature}
-                    Humidity={Humidity}
-                    Pressure={Pressure}
-                    Data={Data}
+                    chartData={chartData}
                 />
             </div>
         </>

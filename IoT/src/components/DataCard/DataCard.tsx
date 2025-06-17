@@ -4,24 +4,22 @@ import Thermostat from '@mui/icons-material/Thermostat';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import OpacityIcon from '@mui/icons-material/Opacity';
 import Link from '@mui/material/Link';
+import type { DeviceData } from '../../types/types';
 
 type InfoCardProps = {
-    deviceID: number | string | undefined;
-    temperature?: number | string | undefined;
-    humidity?: number | string | undefined;
-    pressure?: number | string | undefined;
+    deviceData: DeviceData;
     backgroundColor?: string;
     border?: string;
     details?: boolean;
     handleDetails?: (value: number) => void;
 };
 
-function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, border, details, handleDetails}: InfoCardProps) {
+function DataCard({ deviceData, backgroundColor, border, details, handleDetails}: InfoCardProps) {
 
     const noData =
-        (temperature === undefined || temperature === 'undefined') &&
-        (humidity === undefined || humidity === 'undefined') &&
-        (pressure === undefined || pressure === 'undefined');
+        (deviceData.temperature === undefined) &&
+        (deviceData.humidity === undefined) &&
+        (deviceData.pressure === undefined);
 
     return (
         <Card sx={{
@@ -56,7 +54,7 @@ function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, 
                         textDecoration: 'none',
                     }}
                 >
-                    Device No {deviceID}
+                    Device No {deviceData.deviceId}
                 </Typography>
                 <hr style={{ width: '100%', border: '2px solid white', borderRadius: '1px', boxSizing: 'border-box' }} />
                 <Typography
@@ -91,7 +89,7 @@ function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, 
                         textDecoration: 'none',
                     }}
                 >
-                    Device No {deviceID}
+                    Device No {deviceData.deviceId}
                 </Typography>
                 <hr style={{ width: '100%', border: '2px solid white', borderRadius: '1px', boxSizing: 'border-box' }} />
                 <Typography
@@ -110,7 +108,7 @@ function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, 
                 >
 
                     <Thermostat sx={{ mr: 1 }} />
-                    {temperature} °C
+                    {deviceData.temperature} °C
 
                 </Typography>
                 <Typography
@@ -129,7 +127,7 @@ function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, 
                 >
 
                     <CloudUploadIcon sx={{ mr: 1 }} />
-                    {humidity}%
+                    {deviceData.humidity}%
 
                 </Typography>
                 <Typography
@@ -148,14 +146,14 @@ function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, 
                 >
 
                     <OpacityIcon sx={{ mr: 1 }} />
-                    {pressure} hPa
+                    {deviceData.pressure} hPa
 
                 </Typography>
                 {details === true ? 
                 <Link
                     onClick={() => {
-                        if (!isNaN(Number(deviceID)) && typeof handleDetails === 'function') {
-                                handleDetails(Number(deviceID));
+                        if (!isNaN(Number(deviceData.deviceId)) && typeof handleDetails === 'function') {
+                                handleDetails(Number(deviceData.deviceId));
                             } else {
                                 return null;
                             }

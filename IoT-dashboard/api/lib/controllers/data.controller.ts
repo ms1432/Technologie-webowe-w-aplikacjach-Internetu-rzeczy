@@ -19,12 +19,13 @@ class DataController implements Controller {
     private initializeRoutes() {
         this.router.get(`${this.path}/latest`, auth, this.getLatestReadingsFromAllDevices);
         this.router.post(`${this.path}/:id`, auth, checkIdParam, this.addData);
-        this.router.get(`${this.path}/:id`, auth, checkIdParam, this.getAllDeviceData);
+        this.router.get(`${this.path}/:id/latest`, auth, checkIdParam, this.getAllPeriodData);
         this.router.get(`${this.path}/:id/:num`, auth, checkIdParam, this.getPeriodData);
-        this.router.get(`${this.path}/:id/latest`, auth, checkIdParam, this.getPeriodData);
+        this.router.get(`${this.path}/:id`, auth, checkIdParam, this.getAllDeviceData);
         this.router.delete(`${this.path}/all`, admin, this.cleanAllDevices);
-        this.router.delete(`${this.path}/:id`, admin, checkIdParam, this.cleanDeviceData);
+        this.router.delete(`${this.path}/delete/:id`, admin, this.deleteOneData);
         this.router.delete(`${this.path}/:id/:hour`, admin, this.cleanDeviceDataOlderThan);
+        this.router.delete(`${this.path}/:id`, admin, checkIdParam, this.cleanDeviceData);
     }
 
     private getLatestReadingsFromAllDevices = async (request: Request, response: Response, next: NextFunction) => {
@@ -76,16 +77,23 @@ class DataController implements Controller {
     };
 
 
+    private getAllPeriodData = async (request: Request, response: Response, next: NextFunction) => {
+        const id = request.params.id;
+        response.removeHeader('ETag');
+        try {
+            const data = await this.dataService.query(id);
+            return response.status(200).json(data);
+        } catch (error) {
+            response.status(500).json({ error: error.message });
+        }
+    }
+
     private getPeriodData = async (request: Request, response: Response, next: NextFunction) => {
         const { id, num } = request.params;
         try {
-            const data = await this.dataService.query(id);
             const n = Number(num);
-            if (!num || isNaN(n) || n <= 0) {
-                return response.status(200).json(data);
-            } else {
-                return response.status(200).json(data.slice(0, n));
-            }
+            const data = await this.dataService.queryLimit(id, n);
+            return response.status(200).json(data);
         } catch (error) {
             response.status(500).json({ error: error.message });
         }
@@ -114,10 +122,23 @@ class DataController implements Controller {
 
     private cleanDeviceDataOlderThan = async (request: Request, response: Response, next: NextFunction) => {
         const { id, hour } = request.params;
-        try{
+        try {
             await this.dataService.deleteDataOlderThan(id, parseInt(hour));
             response.status(200).json(`Usunieto dane starsze niż: ${hour}`);
-        }catch(error){
+        } catch (error) {
+            response.status(500).json({ error: error.message });
+        }
+    }
+
+    private deleteOneData = async (request: Request, response: Response, next: NextFunction) => {
+        const id = request.params.id;
+        try {
+            const result = await this.dataService.deleteDataById(id);
+            if (!result) {
+                throw new Error('Wystąpił błąd podczas usuwania danych');
+            }
+            response.status(200).json(`Usunieto dane dane o id: ${id}`);
+        } catch (error) {
             response.status(500).json({ error: error.message });
         }
     }

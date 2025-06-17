@@ -16,8 +16,18 @@ export default class DataService {
 
     public async query(deviceID: string) {
         try {
-            const data = await DataModel.find({ deviceId: deviceID }, { __v: 0, _id: 0 })
-            .sort( { readingDate: -1 });
+            const data = await DataModel.find({ deviceId: deviceID }, { __v: 0 })
+                .sort({ readingDate: -1 });
+            return data;
+        } catch (error) {
+            throw new Error(`Query failed: ${error}`);
+        }
+    }
+    public async queryLimit(deviceID: string, num: number) {
+        try {
+            const data = await DataModel.find({ deviceId: deviceID }, { __v: 0 })
+                .sort({ readingDate: -1 })
+                .limit(num);
             return data;
         } catch (error) {
             throw new Error(`Query failed: ${error}`);
@@ -67,17 +77,26 @@ export default class DataService {
         }
     }
 
-    public async deleteDataOlderThan(deviceID: string, hours: number) {
-    try {
-      const cutoffDate = new Date();
-      cutoffDate.setHours(cutoffDate.getHours() - hours);
-
-      const result = await DataModel.deleteMany({ deviceId: deviceID, readingDate: { $lt: cutoffDate }});
-      return result;
-    } catch (error) {
-      console.error("Błąd podczas usuwania starych danych:", error);
-      throw new Error(`Query failed: ${error}`);
+    public async deleteDataById(dataID: string) {
+        try{
+            const data = await DataModel.deleteOne({ _id: dataID})
+            return data;
+        }catch (error) {
+            throw new Error(`Query failed: ${error}`);
+        }
     }
-  }
+
+    public async deleteDataOlderThan(deviceID: string, hours: number) {
+        try {
+            const cutoffDate = new Date();
+            cutoffDate.setHours(cutoffDate.getHours() - hours);
+
+            const result = await DataModel.deleteMany({ deviceId: deviceID, readingDate: { $lt: cutoffDate } });
+            return result;
+        } catch (error) {
+            console.error("Błąd podczas usuwania starych danych:", error);
+            throw new Error(`Query failed: ${error}`);
+        }
+    }
 }
 

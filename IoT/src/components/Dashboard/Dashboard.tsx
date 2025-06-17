@@ -8,33 +8,22 @@ import { useNavigate } from 'react-router-dom';
 
 import FormCard from './FormCard';
 import DeviceDetails from './DeviceDetails';
-
-type DeviceData = {
-    deviceId: number;
-    temperature: number;
-    humidity: number;
-    pressure: number;
-};
-
+import type { ChartData, DeviceData } from '../../types/types';
+import { MAX_DEVICES } from '../../types/types';
 
 
 function Dashboard() {
 
     const [deviceCount, setDeviceCount] = useState(5)
     const [deviceData, setDeviceData] = useState<DeviceData[][] | undefined>([]);
-    const [currentDeviceData, setCurrentDeviceData] = useState<Partial<DeviceData>>({
+    const [currentDeviceData, setCurrentDeviceData] = useState<DeviceData>({
         deviceId: undefined,
         temperature: undefined,
         humidity: undefined,
         pressure: undefined
     });
     const [currentDeviceId, setCurrentDeviceId] = useState(2);
-    const [chartData, setChartData] = useState<{
-        tData: number[];
-        hData: number[];
-        pData: number[];
-        xLabels: string[];
-    }>({
+    const [chartData, setChartData] = useState<ChartData>({
         tData: [],
         hData: [],
         pData: [],
@@ -42,7 +31,6 @@ function Dashboard() {
     });
     const [deviceDetailsID, setDeviceDetailsID] = useState<number | null>(null);
 
-    const MAX_DEVICES = 17;
     const MAX_DATA = 10;
 
     const navigate = useNavigate();
@@ -78,13 +66,13 @@ function Dashboard() {
                     temperature: undefined,
                     humidity: undefined,
                     pressure: undefined,
-                    readingDate: undefined
                 });
                 setChartData({
                     tData: data ? data.map((d: { temperature: any }) => d.temperature) : [],
                     hData: data ? data.map((d: { humidity: any }) => d.humidity) : [],
-                    pData: data ? data.map((d: { pressure: any }) => d.pressure / 10) : [],
+                    pData: data ? data.map((d: { pressure: any }) => d.pressure) : [],
                     xLabels: data ? data.map((d: { readingDate: any }) => parseDate(d.readingDate)) : [],
+                    dataId: data ? data.map((d: {_id: any }) => d._id) : []
                 });
             });
     }
@@ -163,10 +151,7 @@ function Dashboard() {
                     }}>
                         {currentDeviceData && (
                             <DataCard
-                                deviceID={currentDeviceId}
-                                temperature={currentDeviceData.temperature}
-                                humidity={currentDeviceData.humidity}
-                                pressure={currentDeviceData.pressure}
+                                deviceData={currentDeviceData}
                             />
                         )}
                     </div>
@@ -178,10 +163,7 @@ function Dashboard() {
                         gap: "20px"
                     }}>
                         <Chart
-                            Temperature={chartData.tData}
-                            Humidity={chartData.hData}
-                            Pressure={chartData.pData}
-                            Data={chartData.xLabels}
+                            chartData={chartData}
                         />
                         <FormCard onDevicesValueChange={handleDevicesValueChange} />
                     </div>
@@ -201,14 +183,30 @@ function Dashboard() {
                     Array.isArray(deviceData) && deviceData.length > 0 && (
                         Array.from({ length: deviceCount }).map((_, idx) => {
                             let isBigDiff = false;
-                            const deviceArr = deviceData[idx];
-                            const last = deviceArr && deviceArr[0];
-                            const prev = deviceArr && deviceArr[1];
-                            if (last && prev && prev.temperature !== 0) {
-                                const diffTemp = Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature);
-                                const diffHum = Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity);
-                                const diffPress = Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure);
-                                if (diffTemp > 0.2 || diffHum > 0.2 || diffPress > 0.2) isBigDiff = true;
+                            const deviceArr = deviceData[idx]; 
+
+                            let cardDeviceData: DeviceData; 
+
+                            if (deviceArr && deviceArr.length > 0) {
+                                cardDeviceData = deviceArr[0];
+
+                                const prev = deviceArr[1]; 
+
+                                if (cardDeviceData.temperature !== undefined &&
+                                    prev?.temperature !== undefined && prev.temperature !== 0 &&
+                                    cardDeviceData.humidity !== undefined &&
+                                    prev?.humidity !== undefined &&
+                                    cardDeviceData.pressure !== undefined &&
+                                    prev?.pressure !== undefined) {
+                                    const diffTemp = Math.abs(cardDeviceData.temperature - prev.temperature) / Math.abs(prev.temperature);
+                                    const diffHum = Math.abs(cardDeviceData.humidity - prev.humidity) / Math.abs(prev.humidity);
+                                    const diffPress = Math.abs(cardDeviceData.pressure - prev.pressure) / Math.abs(prev.pressure);
+                                    if (diffTemp > 0.2 || diffHum > 0.2 || diffPress > 0.2) isBigDiff = true;
+                                }
+                            } else {
+                                cardDeviceData = {
+                                    deviceId: idx 
+                                };
                             }
                             return (
                                 <div
@@ -218,10 +216,7 @@ function Dashboard() {
                                     }}
                                 >
                                     <DataCard
-                                        deviceID={idx}
-                                        temperature={deviceArr && deviceArr[0] ? deviceArr[0].temperature : undefined}
-                                        humidity={deviceArr && deviceArr[0] ? deviceArr[0].humidity : undefined}
-                                        pressure={deviceArr && deviceArr[0] ? deviceArr[0].pressure : undefined}
+                                        deviceData={cardDeviceData}
                                         backgroundColor={idx === currentDeviceId ? '#0eb4b2' : undefined}
                                         border={isBigDiff ? '5px solid red' : undefined}
                                         details={true}

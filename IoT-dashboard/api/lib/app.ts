@@ -13,6 +13,7 @@ class App {
     constructor(controllers: Controller[]) {
         this.app = express();
         this.app.use(cors());
+        this.app.set('etag', false);
         this.app.use((req, res, next) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');

@@ -1,15 +1,16 @@
 import { LineChart } from '@mui/x-charts';
+import type { ChartData } from '../../types/types';
 
 const margin = { right: 24 };
 
 type ChartProps = {
-  Temperature?: number[];
-  Humidity?: number[];
-  Pressure?: number[];
-  Data?: string[]
+  chartData: ChartData
 };
 
-function Chart({ Temperature, Humidity, Pressure, Data }: ChartProps) {
+function Chart({ chartData }: ChartProps) {
+
+  const scaledPData = chartData.pData.map(pressure => pressure / 10);
+
   return (
     <LineChart
       sx={{
@@ -24,24 +25,24 @@ function Chart({ Temperature, Humidity, Pressure, Data }: ChartProps) {
       height={300}
       series={[
         {
-          data: Temperature,
-          label: 'Temperature [C]',
+          data: chartData.tData,
+          label: 'Temperature [°C]',
           curve: "natural"
         },
         {
-          data: Humidity,
+          data: chartData.hData,
           label: 'Humidity [%]',
           curve: "natural"
         },
         {
-          data: Pressure,
+          data: scaledPData,
           label: 'Pressure x 10 [hPa]',
           curve: "natural"
         },
       ]}
       xAxis={[{
         scaleType: 'point',
-        data: Data,
+        data: chartData.xLabels,
         tickLabelStyle: { fill: 'white' },
       }]}
       yAxis={[{

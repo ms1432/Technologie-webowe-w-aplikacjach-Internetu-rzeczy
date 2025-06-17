@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 const API_URL = 'http://localhost:3100/api/data';
 const DEVICE_IDS = [0, 1, 2, 4, 5, 7, 8, 10, 12, 15, 16];
-const TOKEN = ''; 
+const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODQyZjQ5ODI3YWZlYjUwN2IwNWMxZWQiLCJuYW1lIjoidGVzdEB0ZXN0LmNvbSIsInJvbGUiOiJhZG1pbiIsImlzQWRtaW4iOnRydWUsImFjY2VzcyI6ImF1dGgiLCJpYXQiOjE3NTAxODY2MTMsImV4cCI6MTc1MDE5NzQxM30.0FJ06-lgRBX74hdswvPIjfdSVKHjC9ZYD3Ut3OQTx-Y'; 
 
 function generateRandomAir() {
     return [

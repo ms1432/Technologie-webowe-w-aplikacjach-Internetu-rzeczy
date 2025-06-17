@@ -1,6 +1,7 @@
 import { Typography, Slider } from '@mui/material';
 import Card from '@mui/material/Card';
 import { useEffect, useState } from 'react';
+import { MAX_DEVICES } from '../../types/types';
 
 type FormCardProps = {
     onDevicesValueChange: (value: number) => void;
@@ -54,7 +55,7 @@ function FormCard({ onDevicesValueChange}: FormCardProps) {
                 value={inputDevicesValue}
                 onChange={(_, value) => setInputDevicesValue(value as number)}
                 min={1}
-                max={17}
+                max={MAX_DEVICES}
                 step={1}
                 marks
                 valueLabelDisplay="auto"
