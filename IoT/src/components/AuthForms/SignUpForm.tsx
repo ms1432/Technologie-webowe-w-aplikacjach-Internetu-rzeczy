@@ -93,6 +93,16 @@ const SignUpForm: React.FC = () => {
                         variant="outlined"
                         error={Boolean(errors.username)}
                         helperText={errors.username}
+                        sx={{
+                            bgcolor: '#0eb4b2',
+                            borderRadius: '9px',
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'white',
+                            },
+                        }}
                     />
                 </Box>
                 <Box mb={2}>
@@ -106,6 +116,16 @@ const SignUpForm: React.FC = () => {
                         variant="outlined"
                         error={Boolean(errors.email)}
                         helperText={errors.email}
+                        sx={{
+                            bgcolor: '#0eb4b2',
+                            borderRadius: '9px',
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'white',
+                            },
+                        }}
                     />
                 </Box>
                 <Box mb={2}>
@@ -119,6 +139,16 @@ const SignUpForm: React.FC = () => {
                         variant="outlined"
                         error={Boolean(errors.password)}
                         helperText={errors.password}
+                        sx={{
+                            bgcolor: '#0eb4b2',
+                            borderRadius: '9px',
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'white',
+                            },
+                        }}
                     />
                 </Box>
                 <Button type="submit" variant="contained" color="primary" fullWidth>

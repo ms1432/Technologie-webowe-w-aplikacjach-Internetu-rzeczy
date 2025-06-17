@@ -74,6 +74,16 @@ const LoginForm: React.FC = () => {
                         fullWidth
                         margin="normal"
                         variant="outlined"
+                        sx={{
+                            bgcolor: '#0eb4b2',
+                            borderRadius: '9px',
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'white',
+                            },
+                        }}
                     />
                     {errors.username && (
                         <Alert severity="error">
@@ -91,6 +101,16 @@ const LoginForm: React.FC = () => {
                         fullWidth
                         margin="normal"
                         variant="outlined"
+                        sx={{
+                            bgcolor: '#0eb4b2',
+                            borderRadius: '5px',
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'white',
+                            },
+                        }}
                     />
                     {errors.password && (
                         <Alert severity="error">
@@ -98,7 +118,11 @@ const LoginForm: React.FC = () => {
                         </Alert>
                     )}
                 </div>
-                <Button type="submit" variant="contained" color="primary" fullWidth>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth>
                     Login
                 </Button>
             </form>

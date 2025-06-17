@@ -6,15 +6,16 @@ function AuthCard() {
     return (
         <>
             <Card sx={{
-                padding: 3,
-                ":hover": { boxShadow: "0 4px 12px 0 rgb(90, 90, 90)" },
-                margin: 'auto',
+                backgroundColor: '#1e1e1e',
+                color: 'white',
+                padding: 2,
+                ":hover": {
+                    transform: "translateY(-6px)",
+                    boxShadow: "0 4px 12px 0 rgb(90, 90, 90)",
+                    transition: "transform 0.2s, box-shadow 0.2s, background 0.2s"
+                },
                 minWidth: 350,
                 minHeight: 200,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'rgb(250, 249, 246)',
             }}>
                 <Outlet />
             </Card >

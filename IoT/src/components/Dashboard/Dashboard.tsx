@@ -7,6 +7,7 @@ import { isExpired } from 'react-jwt';
 import { useNavigate } from 'react-router-dom';
 
 import FormCard from './FormCard';
+import DeviceDetails from './DeviceDetails';
 
 type DeviceData = {
     deviceId: number;
@@ -39,6 +40,7 @@ function Dashboard() {
         pData: [],
         xLabels: [],
     });
+    const [deviceDetailsID, setDeviceDetailsID] = useState<number | null>(null);
 
     const MAX_DEVICES = 17;
     const MAX_DATA = 10;
@@ -67,8 +69,8 @@ function Dashboard() {
         setDeviceData(allData);
     }
 
-    function fetchDataRecords(idx: number, num: number) {
-        fetch(`http://localhost:3100/api/data/${idx}/${num}`, headerOptions)
+    async function fetchDataRecords(idx: number, num: number) {
+        await fetch(`http://localhost:3100/api/data/${idx}/${num}`, headerOptions)
             .then(response => response.json())
             .then(data => {
                 setCurrentDeviceData(data && data.length > 0 ? data[0] : {
@@ -91,6 +93,13 @@ function Dashboard() {
         setDeviceCount(value);
     }
 
+    async function handleDetails(idx: number | null) {
+        if (idx !== null) {
+            await fetchDataRecords(idx, MAX_DATA)
+        }
+        setDeviceDetailsID(idx);
+    }
+
     function changeCurrentDevice(idx: number) {
         setCurrentDeviceId(idx);
     }
@@ -100,6 +109,8 @@ function Dashboard() {
         return date.toLocaleString('pl-PL', {
             hour: '2-digit',
             minute: '2-digit',
+            day: '2-digit',
+            month: '2-digit'
         }).replace(',', '');
     }
 
@@ -112,7 +123,7 @@ function Dashboard() {
 
 
     useEffect(() => {
-        fetchDataRecords(currentDeviceId, MAX_DATA); 
+        fetchDataRecords(currentDeviceId, MAX_DATA);
     }, [currentDeviceId]);
 
     useEffect(() => {
@@ -172,7 +183,7 @@ function Dashboard() {
                             Pressure={chartData.pData}
                             Data={chartData.xLabels}
                         />
-                        <FormCard onDevicesValueChange={handleDevicesValueChange}/>
+                        <FormCard onDevicesValueChange={handleDevicesValueChange} />
                     </div>
                 </div>
             </div>
@@ -186,37 +197,46 @@ function Dashboard() {
                 gap: '5vh',
 
             }}>
-                {Array.isArray(deviceData) && deviceData.length > 0 && (
-                    Array.from({ length: deviceCount }).map((_, idx) => {
-                        let isBigDiff = false;
-                        const deviceArr = deviceData[idx];
-                        const last = deviceArr && deviceArr[0];
-                        const prev = deviceArr && deviceArr[1];
-                        if (last && prev && prev.temperature !== 0) {
-                            const diffTemp = Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature);
-                            const diffHum = Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity);
-                            const diffPress = Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure);
-                            if (diffTemp > 0.2 || diffHum > 0.2 || diffPress > 0.2) isBigDiff = true;
-                        }
-                        return (
-                            <div
-                                key={idx}
-                                onClick={() => changeCurrentDevice(idx)}
-                                style={{
-                                }}
-                            >
-                                <DataCard
-                                    deviceID={idx}
-                                    temperature={deviceArr && deviceArr[0] ? deviceArr[0].temperature : undefined}
-                                    humidity={deviceArr && deviceArr[0] ? deviceArr[0].humidity : undefined}
-                                    pressure={deviceArr && deviceArr[0] ? deviceArr[0].pressure : undefined}
-                                    backgroundColor={idx === currentDeviceId ? '#0eb4b2' : undefined}
-                                    border={isBigDiff ? '5px solid red' : undefined}
-                                />
-                            </div>
-                        );
-                    })
-                )}
+                {deviceDetailsID === null ?
+                    Array.isArray(deviceData) && deviceData.length > 0 && (
+                        Array.from({ length: deviceCount }).map((_, idx) => {
+                            let isBigDiff = false;
+                            const deviceArr = deviceData[idx];
+                            const last = deviceArr && deviceArr[0];
+                            const prev = deviceArr && deviceArr[1];
+                            if (last && prev && prev.temperature !== 0) {
+                                const diffTemp = Math.abs(last.temperature - prev.temperature) / Math.abs(prev.temperature);
+                                const diffHum = Math.abs(last.humidity - prev.humidity) / Math.abs(prev.humidity);
+                                const diffPress = Math.abs(last.pressure - prev.pressure) / Math.abs(prev.pressure);
+                                if (diffTemp > 0.2 || diffHum > 0.2 || diffPress > 0.2) isBigDiff = true;
+                            }
+                            return (
+                                <div
+                                    key={idx}
+                                    onClick={() => changeCurrentDevice(idx)}
+                                    style={{
+                                    }}
+                                >
+                                    <DataCard
+                                        deviceID={idx}
+                                        temperature={deviceArr && deviceArr[0] ? deviceArr[0].temperature : undefined}
+                                        humidity={deviceArr && deviceArr[0] ? deviceArr[0].humidity : undefined}
+                                        pressure={deviceArr && deviceArr[0] ? deviceArr[0].pressure : undefined}
+                                        backgroundColor={idx === currentDeviceId ? '#0eb4b2' : undefined}
+                                        border={isBigDiff ? '5px solid red' : undefined}
+                                        details={true}
+                                        handleDetails={handleDetails}
+                                    />
+                                </div>
+                            );
+                        })
+                    )
+                    :
+                    <DeviceDetails
+                        deviceID={deviceDetailsID}
+                        deviceData={chartData}
+                        detailsState={handleDetails} />
+                }
             </div>
         </>
 

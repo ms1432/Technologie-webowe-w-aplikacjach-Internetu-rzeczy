@@ -3,6 +3,7 @@ import Card from '@mui/material/Card';
 import Thermostat from '@mui/icons-material/Thermostat';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import OpacityIcon from '@mui/icons-material/Opacity';
+import Link from '@mui/material/Link';
 
 type InfoCardProps = {
     deviceID: number | string | undefined;
@@ -11,9 +12,11 @@ type InfoCardProps = {
     pressure?: number | string | undefined;
     backgroundColor?: string;
     border?: string;
+    details?: boolean;
+    handleDetails?: (value: number) => void;
 };
 
-function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, border }: InfoCardProps) {
+function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, border, details, handleDetails}: InfoCardProps) {
 
     const noData =
         (temperature === undefined || temperature === 'undefined') &&
@@ -33,7 +36,10 @@ function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, 
                 transform: "translateY(-6px)",
                 boxShadow: "0 4px 12px 0 rgb(90, 90, 90)",
                 transition: "transform 0.2s, box-shadow 0.2s, background 0.2s"
-            }
+            },
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
         }}>
             {noData ? (<>
                 <Typography
@@ -145,6 +151,28 @@ function DataCard({ deviceID, temperature, humidity, pressure, backgroundColor, 
                     {pressure} hPa
 
                 </Typography>
+                {details === true ? 
+                <Link
+                    onClick={() => {
+                        if (!isNaN(Number(deviceID)) && typeof handleDetails === 'function') {
+                                handleDetails(Number(deviceID));
+                            } else {
+                                return null;
+                            }
+                    }}
+                    sx={{
+                        marginTop: 'auto', 
+                        alignSelf: 'flex-start', 
+                        color: 'inherit', 
+                        textDecoration: 'underline', 
+                        ':hover': {
+                            color: 'lightblue',
+                        }
+                    }}
+                >Details</Link>
+                :
+                <></>
+                }
             </>)}
         </Card>
     );
