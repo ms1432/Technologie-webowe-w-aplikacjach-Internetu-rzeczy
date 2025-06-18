@@ -41,7 +41,7 @@ class UserController implements Controller {
             }
 
             const token = await this.tokenService.create(user);
-            response.status(200).json({token: this.tokenService.getToken(token).token, email: user.email});
+            response.status(200).json({token: this.tokenService.getToken(token).token, userId: user._id, email: user.email});
         } catch (error) {
             console.error(`Validation Error: ${error.message}`);
             response.status(401).json({ error: 'Unauthorized' });

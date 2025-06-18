@@ -57,7 +57,7 @@ function AllDevicesChart() {
     const chartData: ChartData = {
         tData: flatData.map((d: any) => d.temperature),
         hData: flatData.map((d: any) => d.humidity),
-        pData: flatData.map((d: any) => d.pressure / 10),
+        pData: flatData.map((d: any) => d.pressure ),
         xLabels: flatData.map((d: any) =>
         new Date(d.readingDate).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }))
     }

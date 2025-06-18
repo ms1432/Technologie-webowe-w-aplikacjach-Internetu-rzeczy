@@ -10,7 +10,7 @@ function AdminCard({ children }: AdminCardProps) {
         <Card
             sx={{
                 width: "30vw",
-                height: "60vh",
+                height: "80vh",
                 borderRadius: '20px',
                 display: "flex",
                 flexDirection: "column",

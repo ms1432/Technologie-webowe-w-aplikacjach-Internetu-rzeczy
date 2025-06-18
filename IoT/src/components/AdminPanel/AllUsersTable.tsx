@@ -1,4 +1,5 @@
 import { TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button, Table, Alert, Box } from "@mui/material";
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 
@@ -6,6 +7,8 @@ function AllUsersTable() {
     const [userData, setUserData] = useState<any[]>([]);
     const [userID, setUserID] = useState('');
     const [alertState, setAlertState] = useState(0);
+    const [newUserPassword, setNewUserPassword] = useState<string | null>();
+    const [userEmail, setUserEmail] = useState<string | null>();
 
     const GETheaderOptions = {
         method: "GET",
@@ -30,6 +33,30 @@ function AllUsersTable() {
             .then(response => response.json())
             .then(data => setUserData(data))
         console.log(userData);
+    }
+
+    function changeUserPassword() {
+        console.log(newUserPassword);
+        if(newUserPassword === '' || newUserPassword === null) return;
+        axios
+            .post('http://localhost:3100/api/user/resetPasswd', {
+                email: userEmail,
+                password: newUserPassword
+            },{
+                headers: GETheaderOptions.headers,
+            })
+            .then((response) => {
+                setAlertState(2);
+                setTimeout(() => {
+                    setAlertState(0);
+                }, 5000);
+            })
+            .catch((error) => {
+                setAlertState(1);
+                setTimeout(() => {
+                    setAlertState(0);
+                }, 5000);
+            });
     }
 
     async function deleteUser(userID: string) {
@@ -113,19 +140,55 @@ function AllUsersTable() {
                 onClick={() => deleteUser(userID)}>
                 Usuń użytkownika o podanym ID
             </Button>
+            <Box>
+                <TextField
+                    variant="outlined"
+                    placeholder='Email użytkownika'
+                    onChange={(event) => setUserEmail(event.target.value)}
+                    sx={{
+                        borderRadius: '8px',
+                        bgcolor: '#cccccc',
+                        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                        {
+                            borderColor: "#0eb4b2",
+                        },
+                        color: 'black',
+
+                    }} />
+                <TextField
+                    variant="outlined"
+                    placeholder='Nowe haslo'
+                    onChange={(event) => setNewUserPassword(event.target.value)}
+                    sx={{
+                        borderRadius: '8px',
+                        bgcolor: '#cccccc',
+                        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                        {
+                            borderColor: "#0eb4b2",
+                        },
+                        color: 'black',
+
+                    }} />
+            </Box>
+            <Button
+                variant="contained"
+                color='error'
+                onClick={() => changeUserPassword()}>
+                Zmień hasło użytkownika
+            </Button>
             <Box sx={{ minHeight: "50px", mb: 2 }}>
                 {alertState === 1 ?
                     <Alert variant="outlined" severity="error" sx={{
                         color: 'white'
                     }}>
-                        Error! Nie udało się usunąć użytkownika
+                        Error!
                     </Alert>
                     :
                     alertState === 2 ?
                         <Alert variant="outlined" severity="success" sx={{
                             color: 'white'
                         }}>
-                            Usunięto użytkownika
+                            Success
                         </Alert>
                         :
                         null

@@ -25,6 +25,22 @@ function Navbar() {
 
     const navigate = useNavigate();
 
+    const DeleteHeaderOptions = {
+        method: "Delete",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-access-token': `Bearer ${localStorage.getItem('token')}` || ''
+        }
+    };
+
+    function logoutUser(){
+        console.log(localStorage.getItem('userId'));
+        fetch(`http://localhost:3100/api/user/logout/${localStorage.getItem('userId')}`, DeleteHeaderOptions)
+        .then(response => response.json())
+        .then(data => data)
+    }
+
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -33,8 +49,9 @@ function Navbar() {
         setAnchorElNav(null);
     };
 
-    const handleNavigate = (path: string) => {
-        if (path === '/') {
+    const handleNavigate = (path: string, label: string) => {
+        if (path === '/' && label === 'Logout') {
+            logoutUser();
             localStorage.clear()
         }
         navigate(path);
@@ -95,7 +112,7 @@ function Navbar() {
                             }}
                         >
                             {pages.map((page) => (
-                                <MenuItem key={page.label} onClick={() => handleNavigate(page.path)}>
+                                <MenuItem key={page.label} onClick={() => handleNavigate(page.path, page.label)}>
                                     <Typography textAlign="center">{page.label}</Typography>
                                 </MenuItem>
                             ))}
@@ -110,7 +127,7 @@ function Navbar() {
                                 (page.label !== 'Admin Panel' || isAdmin) && (
                                     <Button
                                         key={page.label}
-                                        onClick={() => handleNavigate(page.path)}
+                                        onClick={() => handleNavigate(page.path, page.label)}
                                         sx={{ my: 2, color: 'white', display: 'block' }}
                                     >
                                         {page.label}

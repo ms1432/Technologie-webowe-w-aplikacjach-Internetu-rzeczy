@@ -50,7 +50,8 @@ function DeviceDetails({ deviceID, deviceData, detailsState }: DeviceDetailsProp
 
     function parseData(deviceData: ChartData) {
         const newData: ParsedData = [];
-        for (let i = 0; i < deviceData.xLabels.length; i++) {
+        if(deviceData == undefined) return;
+        for (let i = 0; i < deviceData.tData.length - 1; i++) {
             newData.push({
                 tData: deviceData.tData[i],
                 hData: deviceData.hData[i],
@@ -67,10 +68,6 @@ function DeviceDetails({ deviceID, deviceData, detailsState }: DeviceDetailsProp
         const token = localStorage.getItem('token');
         token ? setIsAdmin(JSON.parse(atob(token.split('.')[1])).isAdmin) : setIsAdmin(false);
     }, [])
-
-    // useEffect(() => {
-    //     parseData(deviceDataNew);
-    // }, [handleDeleteData])
 
     return (
         <Box sx={{
